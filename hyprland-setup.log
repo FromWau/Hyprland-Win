@@ -1,0 +1,49 @@
+ _   _                  _                 _ ____       _               
+| | | |_   _ _ __  _ __| | __ _ _ __   __| / ___|  ___| |_ _   _ _ __  
+| |_| | | | | '_ \| '__| |/ _` | '_ \ / _` \___ \ / _ \ __| | | | '_ \ 
+|  _  | |_| | |_) | |  | | (_| | | | | (_| |___) |  __/ |_| |_| | |_) |
+|_| |_|\__, | .__/|_|  |_|\__,_|_| |_|\__,_|____/ \___|\__|\__,_| .__/ 
+       |___/|_|                                                 |_|    
+=======================================================================
+
+---------------------------- Set Variables ----------------------------
+CONFIGS:
+KEYLAYOUT=en
+ROOT_PASS=root
+USER_NAME=fromml
+USER_PASS=2556
+TIMEZONE=Europe/Vienna
+HOST=archner
+COUNTRY=AT
+LOCALE=en_US.UTF-8
+-----------------------------------------------------------------------
+
+DISKS:
+DISK_VAULT=/dev/sda3
+DISK_DOCUMENTS=/dev/nvme0n1p1
+DISK_GAMES=/dev/nvme0n1p2
+DISK_BOOT=/dev/nvme1n1p1
+DISK_WIN10_RES=/dev/nvme1n1p2
+DISK_WIN10=/dev/nvme1n1p3
+DISK_ARCH=/dev/nvme1n1p4
+-----------------------------------------------------------------------
+
+PKGS:
+PACMAN: base base-devel linux linux-firmware linux-headers \
+    btrfs-progs os-prober efibootmgr zstd ntfs-3g grub-btrfs \
+    nvidia nvidia-settings nvidia-dkms nvidia-utils amd-ucode \
+	openssh git man reflector iwd networkmanager systemd-swap \
+	pipewire pipewire-alsa pipewire-jack pipewire-pulse wireplumber \
+    blueberry bluez bluez-utils bluedevil \
+    procs tldr curl wget fzf exa ripgrep jq \
+    dash fish dunst neofetch neovim kitty starship btop \
+	ncspot ranger lolcat cowsay playerctl thunderbird discord \
+    firefox kdeconnect ttf-firacode-nerd \
+	wl-clipboard wofi wlroots \
+    xdg-desktop-portal-hyprland hyprland hyprpaper
+AUR: ly nerdfetch shell-color-scripts eww-wayland
+-----------------------------------------------------------------------
+
+What happened:
+
+✗ Aborted by user
