@@ -30,7 +30,7 @@ PKG_PACMAN='base base-devel linux linux-firmware linux-headers \
     dash fish dunst neofetch neovim kitty starship btop \
 	ncspot ranger lolcat cowsay playerctl thunderbird discord \
     firefox kdeconnect ttf-firacode-nerd \
-	wl-clipboard wofi wlroots \
+	wl-clipboard wofi wlroots mpvpaper \
     xdg-desktop-portal-hyprland hyprland hyprpaper'
 PKG_AUR='ly nerdfetch shell-color-scripts eww-wayland'
 # =====================================================================
