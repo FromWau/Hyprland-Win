@@ -52,6 +52,16 @@ CHECK='✔'
 CROSS='✗'
 ARROW=''
 
+# Check if disks are correctly assigned
+if [ "$(lsblk | grep -c "nvme1n1p")" -eq "2" ]; then
+	DISK_DOCUMENTS='/dev/nvme1n1p1'
+	DISK_GAMES='/dev/nvme1n1p2'
+	DISK_BOOT='/dev/nvme0n1p1'
+	DISK_WIN10_RES='/dev/nvme0n1p2'
+	DISK_WIN10='/dev/nvme0n1p3'
+	DISK_ARCH='/dev/nvme0n1p4'
+fi
+
 echo -e "$LOGO
 
 ---------------------------- Set Variables ----------------------------
@@ -67,7 +77,10 @@ LOCALE=$LOCALE
 -----------------------------------------------------------------------
 
 DISKS:
+HDD:
 DISK_VAULT=$DISK_VAULT
+
+
 DISK_DOCUMENTS=$DISK_DOCUMENTS
 DISK_GAMES=$DISK_GAMES
 DISK_BOOT=$DISK_BOOT
