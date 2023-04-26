@@ -119,7 +119,7 @@ fi
 echo "Starting setup..."
 
 # Check if all disks exists
-lsblk | $(! grep "$DISK_VAULT") && echo "$CROSS $DISK_VAULT does not exists" && exit 1
+lsblk | eval ! grep "$(echo "$DISK_VAULT" | awk -F'/' '{print $3}')" && echo "$CROSS $DISK_VAULT does not exists" && exit 1
 lsblk | $(! grep "$DISK_DOCUMENTS") && echo "$CROSS $DISK_DOCUMENTS does not exists" && exit 1
 lsblk | $(! grep "$DISK_GAMES") && echo "$CROSS $DISK_GAMES does not exists" && exit 1
 lsblk | $(! grep "$DISK_BOOT") && echo "$CROSS $DISK_BOOT does not exists" && exit 1
