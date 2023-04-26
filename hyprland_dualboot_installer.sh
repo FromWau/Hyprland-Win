@@ -105,6 +105,15 @@ fi
 
 echo "Starting setup..."
 
+# Check if all disks exists
+! [ -f $DISK_VAULT ] && echo "$CROSS $DISK_VAULT does not exists"
+! [ -f $DISK_DOCUMENTS ] && echo "$CROSS $DISK_DOCUMENTS does not exists"
+! [ -f $DISK_GAMES ] && echo "$CROSS $DISK_GAMES does not exists"
+! [ -f $DISK_BOOT ] && echo "$CROSS $DISK_BOOT does not exists"
+! [ -f $DISK_WIN10_RES ] && echo "$CROSS $DISK_WIN10_RES does not exists"
+! [ -f $DISK_WIN10 ] && echo "$CROSS $DISK_WIN10 does not exists"
+! [ -f $DISK_ARCH ] && echo "$CROSS $DISK_ARCH does not exists"
+
 # Setup Filesystem
 mkfs.vfat -F32 -n "EFI" $DISK_BOOT &&
 	mkfs.btrfs -L Arch -f $DISK_ARCH &&
