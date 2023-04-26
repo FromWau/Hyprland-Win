@@ -117,7 +117,6 @@ if ! whiptail --yesno "$text " 40 100; then
 fi
 
 echo "Starting setup..."
-cd ~ && umount -a
 
 # Check if all disks exists
 lsblk | eval ! grep "$(echo "$DISK_VAULT" | awk -F'/' '{print $3}')" >/dev/null && echo "$CROSS $DISK_VAULT does not exists" && exit 1
@@ -127,6 +126,9 @@ lsblk | eval ! grep "$(echo "$DISK_BOOT" | awk -F'/' '{print $3}')" >/dev/null &
 lsblk | eval ! grep "$(echo "$DISK_WIN10_RES" | awk -F'/' '{print $3}')" >/dev/null && echo "$CROSS $DISK_WIN10_RES does not exists" && exit 1
 lsblk | eval ! grep "$(echo "$DISK_WIN10" | awk -F'/' '{print $3}')" >/dev/null && echo "$CROSS $DISK_WIN10 does not exists" && exit 1
 lsblk | eval ! grep "$(echo "$DISK_ARCH" | awk -F'/' '{print $3}')" >/dev/null && echo "$CROSS $DISK_ARCH does not exists" && exit 1
+
+# Unmount all the drives
+cd ~ && umount $DISK_VAULT $DISK_DOCUMENTS $DISK_GAMES $DISK_BOOT $DISK_WIN10_RES $DISK_WIN10 $DISK_ARCH
 
 # Setup Filesystem
 mkfs.vfat -F32 -n "EFI" $DISK_BOOT &&
