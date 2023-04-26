@@ -136,12 +136,12 @@ mkfs.vfat -F32 -n "EFI" $DISK_BOOT &&
 # Create Sub volumes
 mkdir -p /mnt/arch &&
 	mount $DISK_ARCH /mnt/arch &&
-	btrfs sub create /mnt/@ &&
-	btrfs sub create /mnt/@home &&
-	btrfs sub create /mnt/@.snapshots &&
-	btrfs sub create /mnt/@btrfs &&
-	btrfs sub create /mnt/@log &&
-	btrfs sub create /mnt/@pkg &&
+	btrfs sub create /mnt/arch/@ &&
+	btrfs sub create /mnt/arch/@home &&
+	btrfs sub create /mnt/arch/@.snapshots &&
+	btrfs sub create /mnt/arch/@btrfs &&
+	btrfs sub create /mnt/arch/@log &&
+	btrfs sub create /mnt/arch/@pkg &&
 	umount /mnt/arch &&
 	echo "$CHECK Created subvolumes @, @home, @.snapshots, @btrfs, @log, @pkg" ||
 	echo "$CROSS FAILED to create subvolumes @, @home, @.snapshots, @btrfs, @log, @pkg"
@@ -303,8 +303,8 @@ arch-chroot /mnt/arch /bin/dash -c "git clone https://github.com/vinceliuice/gru
 	mkdir -p /mnt/arch/boot/grub/themes &&
 	/mnt/arch/grub2-themes/install.sh -t vimix -g /mnt/arch/boot/grub/themes &&
 	rm -rf /mnt/arch/grub2-themes &&
-	sed -i "s|.*GRUB_THEME=.*|GRUB_THEME=\"boot\/grub\/themes\/vimix/theme.txt\"|" /mnt/grub/etc/default/grub &&
-	sed -i "s|.*GRUB_GFXMODE=.*|GRUB_GFXMODE=1920x1080,auto|" /mnt/grub/etc/default/grub &&
+	sed -i "s|.*GRUB_THEME=.*|GRUB_THEME=\"boot\/grub\/themes\/vimix/theme.txt\"|" /mnt/arch/grub/etc/default/grub &&
+	sed -i "s|.*GRUB_GFXMODE=.*|GRUB_GFXMODE=1920x1080,auto|" /mnt/arch/grub/etc/default/grub &&
 	arch-chroot /mnt/arch /bin/dash -c "grub-mkconfig -o /boot/grub/grub.cfg"
 
 # Enable service
@@ -325,4 +325,4 @@ echo "?maybe clean up home dir?"
 echo
 echo "before rebooting"
 echo "run:"
-echo "umount -R /mnt && reboot"
+echo "cd ~ && umount -a && reboot"
