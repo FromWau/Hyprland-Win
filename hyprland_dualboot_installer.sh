@@ -131,7 +131,7 @@ lsblk | eval ! grep "$(echo "$DISK_WIN10" | awk -F'/' '{print $3}')" >/dev/null 
 lsblk | eval ! grep "$(echo "$DISK_ARCH" | awk -F'/' '{print $3}')" >/dev/null && echo "$CROSS $DISK_ARCH does not exists" && exit 1
 
 # Unmount all the drives
-cd ~ && umount $DISK_VAULT $DISK_DOCUMENTS $DISK_GAMES $DISK_BOOT $DISK_WIN10_RES $DISK_WIN10 $DISK_ARCH
+cd ~ && umount /mnt/arch/{home,var/cache/pacman/pkg,var/log,.snapshots,btrfs,win10,documents,games,vaul,boot} /mnt/arch
 
 # Setup Filesystem
 mkfs.vfat -F32 -n "EFI" $DISK_BOOT &&
@@ -140,8 +140,8 @@ mkfs.vfat -F32 -n "EFI" $DISK_BOOT &&
 	echo "$CROSS FAILED to create boot and linux filesystems"
 
 # Create Sub volumes
-mkdir -p /mnt/arch &&
-	mount $DISK_ARCH /mnt/arch &&
+mkdir -p /mnt/arch
+mount $DISK_ARCH /mnt/arch &&
 	btrfs sub create /mnt/arch/@ &&
 	btrfs sub create /mnt/arch/@home &&
 	btrfs sub create /mnt/arch/@.snapshots &&
@@ -157,7 +157,7 @@ mount -o noatime,compress-force=zstd,commit=120,space_cache=v2,ssd,discard=async
 	mkdir -p /mnt/arch/{home,var/cache/pacman/pkg,var/log,.snapshots,btrfs} &&
 	mount -o noatime,compress-force=zstd,commit=120,space_cache=v2,ssd,discard=async,autodefrag,subvol=@home $DISK_ARCH /mnt/arch/home &&
 	mount -o nodev,nosuid,noexec,noatime,compress-force=zstd,commit=120,space_cache=v2,ssd,discard=async,autodefrag,subvol=@log $DISK_ARCH /mnt/arch/var/log &&
-	mount -o nodev,nosuid,noexec,noatime,compress-force=zstd,commit=120,space_cache=v2,ssd,discard=async,autodefrag,subvol=@pkg $DISK_ARCH /mnt/arch/var/cache &&
+	mount -o nodev,nosuid,noexec,noatime,compress-force=zstd,commit=120,space_cache=v2,ssd,discard=async,autodefrag,subvol=@pkg $DISK_ARCH /mnt/arch/var/cache/pacman/pkg &&
 	mount -o noatime,compress-force=zstd,commit=120,space_cache=v2,ssd,discard=async,autodefrag,subvol=@.snapshots $DISK_ARCH /mnt/arch/.snapshots &&
 	mount -o noatime,compress-force=zstd,commit=120,space_cache=v2,ssd,discard=async,autodefrag,subvolid=5 $DISK_ARCH /mnt/arch/btrfs
 
