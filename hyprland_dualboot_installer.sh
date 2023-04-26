@@ -112,7 +112,7 @@ text=$(printf "%s\n\n%s\n%s\n%s" "$LOGO
 " "Everything correct and ready to go?")
 
 if ! whiptail --yesno "$text " 40 100; then
-	echo "$CROSS Aborted by user" >>$LOG_FILE
+	echo "$CROSS Aborted by user"
 	exit 1
 fi
 
@@ -194,7 +194,7 @@ cp /etc/pacman.conf /mnt/arch/etc
 
 # Set locale
 sed -i "/$LOCALE/s/^#//g" /mnt/arch/etc/locale.gen &&
-	arch-chroot /mnt/arch /bin/dash -c "locale-gen" &&
+	arch-chroot /mnt/arch /bin/bash -c "locale-gen" &&
 	echo "LANG=$LOCALE" >/mnt/arch/etc/locale.conf
 
 # Set vconsole
@@ -202,7 +202,7 @@ echo "KEYMAP=$KEYLAYOUT" >/mnt/arch/etc/vconsole.conf
 
 # Set timezone
 ln -sf /mnt/arch/usr/share/zoneinfo/$TIMEZONE /mnt/arch/etc/localtime &&
-	arch-chroot /mnt/arch /bin/dash -c "hwclock -uw"
+	arch-chroot /mnt/arch /bin/bash -c "hwclock -uw"
 
 # Set hostname
 echo "${HOST}" >/mnt/arch/etc/hostname
@@ -216,31 +216,31 @@ cat <<EOF >>/mnt/arch/etc/hosts
 EOF
 
 # Set root passwd
-arch-chroot /mnt/arch /bin/dash -c "echo 'root:$ROOT_PASS' | chpasswd"
+arch-chroot /mnt/arch /bin/bash -c "echo 'root:$ROOT_PASS' | chpasswd"
 
 # Create user and add policies and passwd
 arch-chroot /mnt/arch /bin/bash -c "useradd -mG wheel -s /bin/fish $USER_NAME && echo '$USER_NAME:$USER_PASS' | chpasswd"
 
 # uncomment wheel nopasswd
-arch-chroot /mnt/arch /bin/dash -c "chmod +w /etc/sudoers &&
+arch-chroot /mnt/arch /bin/bash -c "chmod +w /etc/sudoers &&
     sed -i '/# %wheel ALL=(ALL:ALL) NOPASSWD: ALL/s/^#//' /etc/sudoers &&
     chmod 0440 /etc/sudoers"
 
 # install yay and aur pkgs
-arch-chroot /mnt/arch /bin/dash -c "runuser -l $USER_NAME -c 'git clone https://aur.archlinux.org/yay-git.git ~/yay-git &&
+arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'git clone https://aur.archlinux.org/yay-git.git ~/yay-git &&
     cd ~/yay-git &&
     makepkg -si --noconfirm &&
     rm -rf ~/yay-git &&
     yay -Syyyu --noconfirm --removemake --rebuild $PKG_AUR'"
 
 # Clone and copy dotfiles
-arch-chroot /mnt/arch /bin/dash -c "runuser -l $USER_NAME -c 'git clone https://github.com/FromWau/dotfiles.git ~/dotfiles'" &&
+arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'git clone https://github.com/FromWau/dotfiles.git ~/dotfiles'" &&
 	cp -r /mnt/arch/home/"$USER_NAME"/dotfiles/.local /mnt/arch/home/"$USER_NAME" &&
 	cp -r /mnt/arch/home/"$USER_NAME"/dotfiles/.config/{btop,eww,fish,hypr,kitty,ncspot,nvim,ranger,rofi,starship.toml} /mnt/arch/home/"$USER_NAME"/.config &&
 	rm -rf /mnt/arch/home/"$USER_NAME"/dotfiles
 
 # create dash hook
-arch-chroot /mnt/arch /bin/dash -c "ln -sfT dash /usr/bin/sh" &&
+arch-chroot /mnt/arch /bin/bash -c "ln -sfT dash /usr/bin/sh" &&
 	echo '[Trigger]
 Type = Package
 Operation = Install
@@ -258,7 +258,7 @@ sed -i 's/MODULES=()/MODULES=(btrfs nvidia nvidia_modeset nvidia_uvm nvidia_drm)
 	sed -i 's/#COMPRESSION="lz4"/COMPRESSION="lz4"/' /mnt/arch/etc/mkinitcpio.conf &&
 	sed -i 's/#COMPRESSION_OPTIONS=()/COMPRESSION_OPTIONS=(-9)/' /mnt/arch/etc/mkinitcpio.conf &&
 	sed -i 's/^HOOKS.*/HOOKS=(base systemd btrfs autodetect modconf kms block keyboard sd-vconsole filesystems fsck)/' /mnt/arch/etc/mkinitcpio.conf &&
-	arch-chroot /mnt/arch /bin/dash -c "mkinitcpio -p linux"
+	arch-chroot /mnt/arch /bin/bash -c "mkinitcpio -p linux"
 
 # Set iwd as backend for networkmanager
 cat <<EOF >>/mnt/arch/etc/NetworkManager/conf.d/nm.conf
@@ -296,29 +296,29 @@ EOF
 sed -i "s/ExecStart.*/ExecStart\=\/usr\/lib\/bluetooth\/bluetoothd --experimental/" /mnt/arch/usr/lib/systemd/system/bluetooth.service
 
 # Install and configure grub
-arch-chroot /mnt/arch /bin/dash -c 'grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB' &&
+arch-chroot /mnt/arch /bin/bash -c 'grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB' &&
 	sed -i "s|^GRUB_TIMEOUT=.*|GRUB_TIMEOUT=3|" /mnt/arch/grub/etc/default/grub &&
 	sed -i "s|^GRUB_CMDLINE_LINUX=.*|GRUB_CMDLINE_LINUX=\"rootfstype=btrfs nvidia_drm.modeset=1 rd.driver.blacklist=nouveau modprob.blacklist=nouveau\"|" /mnt/arch/grub/etc/default/grub &&
 	sed -i "/#GRUB_DISABLE_OS_PROBER=.*/s/^#//" /mnt/arch/grub/etc/default/grub
 
 # Theme grub
-arch-chroot /mnt/arch /bin/dash -c "git clone https://github.com/vinceliuice/grub2-themes.git /grub2-themes" &&
+arch-chroot /mnt/arch /bin/bash -c "git clone https://github.com/vinceliuice/grub2-themes.git /grub2-themes" &&
 	mkdir -p /mnt/arch/boot/grub/themes &&
 	/mnt/arch/grub2-themes/install.sh -t vimix -g /mnt/arch/boot/grub/themes &&
 	rm -rf /mnt/arch/grub2-themes &&
 	sed -i "s|.*GRUB_THEME=.*|GRUB_THEME=\"boot\/grub\/themes\/vimix/theme.txt\"|" /mnt/arch/grub/etc/default/grub &&
 	sed -i "s|.*GRUB_GFXMODE=.*|GRUB_GFXMODE=1920x1080,auto|" /mnt/arch/grub/etc/default/grub &&
-	arch-chroot /mnt/arch /bin/dash -c "grub-mkconfig -o /boot/grub/grub.cfg"
+	arch-chroot /mnt/arch /bin/bash -c "grub-mkconfig -o /boot/grub/grub.cfg"
 
 # Enable service
-arch-chroot /mnt/arch /bin/dash -c "systemctl enable NetworkManager &&
+arch-chroot /mnt/arch /bin/bash -c "systemctl enable NetworkManager &&
     systemctl enable sshd.service &&
     systemctl enable ly.service &&
     systemctl enable bluetooth.service &&
     systemctl enable upower.service"
 
 # Set wheel to passwd
-arch-chroot /mnt/arch /bin/dash -c "chmod +w /etc/sudoers &&
+arch-chroot /mnt/arch /bin/bash -c "chmod +w /etc/sudoers &&
     sed -i 's/%wheel ALL=(ALL:ALL) NOPASSWD: ALL/# %wheel ALL=(ALL:ALL) NOPASSWD: ALL/g' /etc/sudoers &&
     sed -i 's/# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/g' /etc/sudoers &&
     chmod 0440 /etc/sudoers"
