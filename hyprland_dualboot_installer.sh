@@ -172,7 +172,7 @@ sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf &&
 	reflector --protocol https --country "$COUNTRY" --score 50 --sort rate --save /etc/pacman.d/mirrorlist
 
 # install all non aur pkgs
-pacstrap /mnt/arch "$PKG_PACMAN"
+echo "$PKG_PACMAN" | xargs pacstrap /mnt/arch
 
 # generate fstab
 genfstab -U /mnt/arch >/mnt/arch/etc/fstab
