@@ -52,6 +52,9 @@ CHECK='✔'
 CROSS='✗'
 ARROW=''
 
+# Create log dir
+mkdir -p /mnt/log
+
 # Check if disks are correctly assigned
 if [ "$(lsblk | grep -c "nvme1n1p")" -eq "2" ]; then
 	DISK_DOCUMENTS='/dev/nvme1n1p1'
@@ -95,7 +98,7 @@ AUR: $PKG_AUR
 -----------------------------------------------------------------------
 
 What happened:
-" >$LOG_FILE
+" >/mnt/log/$LOG_FILE
 
 # whiptail colors
 export NEWT_COLORS='
