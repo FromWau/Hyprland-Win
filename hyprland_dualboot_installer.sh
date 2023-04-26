@@ -117,6 +117,7 @@ if ! whiptail --yesno "$text " 40 100; then
 fi
 
 echo "Starting setup..."
+cd ~ && umount -a
 
 # Check if all disks exists
 lsblk | eval ! grep "$(echo "$DISK_VAULT" | awk -F'/' '{print $3}')" >/dev/null && echo "$CROSS $DISK_VAULT does not exists" && exit 1
