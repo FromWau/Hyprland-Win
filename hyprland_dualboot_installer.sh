@@ -20,18 +20,7 @@ DISK_WIN10_RES='/dev/nvme1n1p2'
 DISK_WIN10='/dev/nvme1n1p3'
 DISK_ARCH='/dev/nvme1n1p4'
 
-PKG_PACMAN='base base-devel linux linux-firmware linux-headers
-    btrfs-progs os-prober efibootmgr zstd ntfs-3g grub-btrfs
-    nvidia nvidia-settings nvidia-dkms nvidia-utils amd-ucode
-	openssh git man reflector iwd networkmanager systemd-swap
-	pipewire pipewire-alsa pipewire-jack pipewire-pulse wireplumber
-    blueberry bluez bluez-utils bluedevil
-    procs tldr curl wget fzf exa ripgrep jq
-    dash fish dunst neofetch neovim kitty starship btop
-	ncspot ranger lolcat cowsay playerctl thunderbird discord
-    firefox kdeconnect ttf-firacode-nerd
-	wl-clipboard wofi wlroots mpvpaper
-    xdg-desktop-portal-hyprland hyprland hyprpaper'
+PKG_PACMAN='base base-devel linux linux-firmware linux-headers btrfs-progs os-prober efibootmgr zstd ntfs-3g grub-btrfs nvidia nvidia-settings nvidia-dkms nvidia-utils amd-ucode openssh git man reflector iwd networkmanager systemd-swap pipewire pipewire-alsa pipewire-jack pipewire-pulse wireplumber blueberry bluez bluez-utils bluedevil procs tldr curl wget fzf exa ripgrep jq dash fish dunst neofetch neovim kitty starship btop ncspot ranger lolcat cowsay playerctl thunderbird discord firefox kdeconnect ttf-firacode-nerd wl-clipboard wofi wlroots mpvpaper xdg-desktop-portal-hyprland hyprland hyprpaper'
 PKG_AUR='ly nerdfetch shell-color-scripts eww-wayland'
 # =====================================================================
 
@@ -183,7 +172,7 @@ sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf &&
 	reflector --protocol https --country "$COUNTRY" --score 50 --sort rate --save /etc/pacman.d/mirrorlist
 
 # install all non aur pkgs
-pacstrap /mnt/arch "$("$PKG_PACMAN" | tr "\n")"
+pacstrap /mnt/arch $PKG_PACMAN
 
 # generate fstab
 genfstab -U /mnt/arch >/mnt/arch/etc/fstab
