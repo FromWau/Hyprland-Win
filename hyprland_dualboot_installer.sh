@@ -169,7 +169,7 @@ mkdir -p /mnt/arch/boot &&
 sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf &&
 	sed -i "/Color/s/^#//" /etc/pacman.conf &&
 	sed -i "/ParallelDownloads/s/^#//" /etc/pacman.conf &&
-	reflector --protocol https --country "$COUNTRY" --score 50 --sort rate --save /etc/pacman.d/mirrorlist
+	reflector --country "$COUNTRY" --score 50 --sort rate --save /etc/pacman.d/mirrorlist
 
 # install all non aur pkgs
 echo "$PKG_PACMAN" | xargs pacstrap /mnt/arch
@@ -219,7 +219,8 @@ arch-chroot /mnt/arch /bin/bash -c "chmod +w /etc/sudoers &&
     chmod 0440 /etc/sudoers"
 
 # install yay and aur pkgs
-arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'git clone https://aur.archlinux.org/yay-git.git ~/yay-git &&
+arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'export CARGO_HOME=$XDG_DATA_HOME/cargo &&
+    git clone https://aur.archlinux.org/yay-git.git ~/yay-git &&
     cd ~/yay-git &&
     makepkg -si --noconfirm &&
     rm -rf ~/yay-git &&
@@ -289,17 +290,17 @@ sed -i "s/ExecStart.*/ExecStart\=\/usr\/lib\/bluetooth\/bluetoothd --experimenta
 
 # Install and configure grub
 arch-chroot /mnt/arch /bin/bash -c 'grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB' &&
-	sed -i "s|^GRUB_TIMEOUT=.*|GRUB_TIMEOUT=3|" /mnt/arch/grub/etc/default/grub &&
-	sed -i "s|^GRUB_CMDLINE_LINUX=.*|GRUB_CMDLINE_LINUX=\"rootfstype=btrfs nvidia_drm.modeset=1 rd.driver.blacklist=nouveau modprob.blacklist=nouveau\"|" /mnt/arch/grub/etc/default/grub &&
-	sed -i "/#GRUB_DISABLE_OS_PROBER=.*/s/^#//" /mnt/arch/grub/etc/default/grub
+	sed -i "s|^GRUB_TIMEOUT=.*|GRUB_TIMEOUT=3|" /mnt/arch/etc/default/grub &&
+	sed -i "s|^GRUB_CMDLINE_LINUX=.*|GRUB_CMDLINE_LINUX=\"rootfstype=btrfs nvidia_drm.modeset=1 rd.driver.blacklist=nouveau modprob.blacklist=nouveau\"|" /mnt/arch/etc/default/grub &&
+	sed -i "/#GRUB_DISABLE_OS_PROBER=.*/s/^#//" /mnt/arch/etc/default/grub
 
 # Theme grub
 arch-chroot /mnt/arch /bin/bash -c "git clone https://github.com/vinceliuice/grub2-themes.git /grub2-themes" &&
 	mkdir -p /mnt/arch/boot/grub/themes &&
 	/mnt/arch/grub2-themes/install.sh -t vimix -g /mnt/arch/boot/grub/themes &&
 	rm -rf /mnt/arch/grub2-themes &&
-	sed -i "s|.*GRUB_THEME=.*|GRUB_THEME=\"boot\/grub\/themes\/vimix/theme.txt\"|" /mnt/arch/grub/etc/default/grub &&
-	sed -i "s|.*GRUB_GFXMODE=.*|GRUB_GFXMODE=1920x1080,auto|" /mnt/arch/grub/etc/default/grub &&
+	sed -i "s|.*GRUB_THEME=.*|GRUB_THEME=\"boot\/grub\/themes\/vimix/theme.txt\"|" /mnt/arch/etc/default/grub &&
+	sed -i "s|.*GRUB_GFXMODE=.*|GRUB_GFXMODE=1920x1080,auto|" /mnt/arch/etc/default/grub &&
 	arch-chroot /mnt/arch /bin/bash -c "grub-mkconfig -o /boot/grub/grub.cfg"
 
 # Enable service
