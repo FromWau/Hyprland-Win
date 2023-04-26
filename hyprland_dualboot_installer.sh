@@ -119,13 +119,13 @@ fi
 echo "Starting setup..."
 
 # Check if all disks exists
-lsblk | eval ! grep "$(echo "$DISK_VAULT" | awk -F'/' '{print $3}')" && echo "$CROSS $DISK_VAULT does not exists" && exit 1
-lsblk | $(! grep "$DISK_DOCUMENTS") && echo "$CROSS $DISK_DOCUMENTS does not exists" && exit 1
-lsblk | $(! grep "$DISK_GAMES") && echo "$CROSS $DISK_GAMES does not exists" && exit 1
-lsblk | $(! grep "$DISK_BOOT") && echo "$CROSS $DISK_BOOT does not exists" && exit 1
-lsblk | $(! grep "$DISK_WIN10_RES") && echo "$CROSS $DISK_WIN10_RES does not exists" && exit 1
-lsblk | $(! grep "$DISK_WIN10") && echo "$CROSS $DISK_WIN10 does not exists" && exit 1
-lsblk | $(! grep "$DISK_ARCH") && echo "$CROSS $DISK_ARCH does not exists" && exit 1
+lsblk | eval ! grep "$(echo "$DISK_VAULT" | awk -F'/' '{print $3}')" >/dev/null && echo "$CROSS $DISK_VAULT does not exists" && exit 1
+lsblk | eval ! grep "$(echo "$DISK_DOCUMENTS" | awk -F'/' '{print $3}')" >/dev/null && echo "$CROSS $DISK_DOCUMENTS does not exists" && exit 1
+lsblk | eval ! grep "$(echo "$DISK_GAMES" | awk -F'/' '{print $3}')" >/dev/null && echo "$CROSS $DISK_GAMES does not exists" && exit 1
+lsblk | eval ! grep "$(echo "$DISK_BOOT" | awk -F'/' '{print $3}')" >/dev/null && echo "$CROSS $DISK_BOOT does not exists" && exit 1
+lsblk | eval ! grep "$(echo "$DISK_WIN10_RES" | awk -F'/' '{print $3}')" >/dev/null && echo "$CROSS $DISK_WIN10_RES does not exists" && exit 1
+lsblk | eval ! grep "$(echo "$DISK_WIN10" | awk -F'/' '{print $3}')" >/dev/null && echo "$CROSS $DISK_WIN10 does not exists" && exit 1
+lsblk | eval ! grep "$(echo "$DISK_ARCH" | awk -F'/' '{print $3}')" >/dev/null && echo "$CROSS $DISK_ARCH does not exists" && exit 1
 
 # Setup Filesystem
 mkfs.vfat -F32 -n "EFI" $DISK_BOOT &&
