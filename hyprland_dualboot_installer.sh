@@ -219,7 +219,7 @@ arch-chroot /mnt/arch /bin/bash -c "chmod +w /etc/sudoers &&
     chmod 0440 /etc/sudoers"
 
 # install yay and aur pkgs
-arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'export CARGO_HOME=$XDG_DATA_HOME/cargo &&
+arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'export CARGO_HOME=$XDG_DATA_HOME/cargo && export RUSTUP_HOME=$XDG_DATA_HOME/rustup &&
     git clone https://aur.archlinux.org/yay-git.git ~/yay-git &&
     cd ~/yay-git &&
     makepkg -si --noconfirm &&
@@ -243,7 +243,7 @@ Target = bash
 Description = Re-pointing /bin/sh symlink to dash...
 When = PostTransaction
 Exec = /usr/bin/ln -sfT dash /usr/bin/sh
-Depends = dash' >/mnt/arch/usr/share/libalpm/hooks/update-bash.look
+Depends = dash' >/mnt/arch/usr/share/libalpm/hooks/update-bash.hook
 
 # Configure mkinicpio.conf
 sed -i 's/MODULES=()/MODULES=(btrfs nvidia nvidia_modeset nvidia_uvm nvidia_drm)/' /etc/mkinitcpio.conf &&
@@ -325,12 +325,9 @@ arch-chroot /mnt/arch /bin/bash -c "chmod +w /etc/sudoers &&
     chmod 0440 /etc/sudoers"
 
 echo "done"
+echo "should be cleand up home dir"
 echo "NTFS doesnt have zstd COMPRESSION?"
-echo "dash not replacing bash after bash update"
-echo "zram works now?"
-echo "bluetooth is now experimental"
-echo "cursor fixed"
-echo "?maybe clean up home dir?"
+echo "should work now ...dash not replacing bash after bash update"
 echo "os prober unable to create some dir"
 echo
 echo "before rebooting"
