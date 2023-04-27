@@ -308,7 +308,8 @@ sed -i "s/^#*Experimental =.*/Experimental = true/" /mnt/arch/etc/bluetooth/main
 
 # Create playerctl systemd unit
 mkdir -p /mnt/arch/home/$USER_NAME/.config/systemd/user &&
-	echo '[Unit]
+	cat <<EOF >/mnt/arch/home/$USER_NAME/.config/systemd/user/playerctld.service &&
+[Unit]
 Description=Keep track of media player activity
 
 [Service]
@@ -316,7 +317,9 @@ Type=oneshot
 ExecStart=/usr/bin/playerctld daemon
 
 [Install]
-WantedBy=default.target' >/mnt/arch/home/$USER_NAME/.config/systemd/user/playerctld.service
+WantedBy=default.target
+EOF
+	arch-chroot /mnt/arch /bin/bash -c "chown -R $USER_NAME:$USER_NAME /home/$USER_NAME/.config/systemd"
 
 # Fix invisible hyprland cursor
 sed -i "s/^Exec=.*/Exec=env WLR_NO_HARDWARE_CURSORS=1 Hyprland/" /mnt/arch/usr/share/wayland-sessions/hyprland.desktop
@@ -336,11 +339,6 @@ arch-chroot /mnt/arch /bin/bash -c "chmod +w /etc/sudoers &&
     chmod 0440 /etc/sudoers"
 
 echo "done"
-echo "should be cleand up home dir"
-echo "NTFS doesnt have zstd COMPRESSION?"
-echo "should work now ...dash not replacing bash after bash update"
-echo "os prober unable to create some dir"
-echo
 echo "before rebooting"
 echo "run:"
 echo "cd ~ && umount -a && reboot"
