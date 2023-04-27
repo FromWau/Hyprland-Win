@@ -20,7 +20,7 @@ DISK_WIN10_RES='/dev/nvme1n1p2'
 DISK_WIN10='/dev/nvme1n1p3'
 DISK_ARCH='/dev/nvme1n1p4'
 
-PKG_PACMAN='base base-devel linux linux-firmware linux-headers btrfs-progs os-prober efibootmgr zstd ntfs-3g grub-btrfs nvidia nvidia-settings nvidia-dkms nvidia-utils amd-ucode openssh git man reflector iwd networkmanager systemd-swap pipewire pipewire-alsa pipewire-jack pipewire-pulse wireplumber blueberry bluez bluez-utils bluedevil procs tldr curl wget fzf exa ripgrep jq dash fish dunst neofetch neovim kitty starship btop ncspot ranger lolcat cowsay playerctl thunderbird discord firefox kdeconnect ttf-firacode-nerd wl-clipboard wofi wlroots xdg-desktop-portal-hyprland hyprland hyprpaper'
+PKG_PACMAN='base base-devel linux linux-firmware linux-headers btrfs-progs os-prober efibootmgr zstd ntfs-3g grub-btrfs zram-generator nvidia nvidia-settings nvidia-dkms nvidia-utils amd-ucode openssh git man reflector iwd networkmanager systemd-swap pipewire pipewire-alsa pipewire-jack pipewire-pulse wireplumber blueberry bluez bluez-utils bluedevil procs tldr curl wget fzf exa ripgrep jq dash fish dunst neofetch neovim kitty starship btop ncspot ranger lolcat cowsay playerctl thunderbird discord firefox kdeconnect ttf-firacode-nerd wl-clipboard wofi wlroots xdg-desktop-portal-hyprland hyprland hyprpaper'
 PKG_AUR='ly nerdfetch shell-color-scripts eww-wayland mpvpaper'
 # =====================================================================
 
@@ -289,7 +289,7 @@ Type=oneshot
 ExecStart=/usr/bin/playerctld daemon
 
 [Install]
-WantedBy=default.target' >/mnt/arch/home/$USER_NAME/config/systemd/user/playerctld.service
+WantedBy=default.target' >/mnt/arch/home/$USER_NAME/.config/systemd/user/playerctld.service
 
 # Fix invisible hyprland cursor
 sed -i "s/^Exec=.*/Exec=env WLR_NO_HARDWARE_CURSORS=1 Hyprland/" /mnt/arch/usr/share/wayland-sessions/hyprland.desktop
@@ -307,6 +307,7 @@ arch-chroot /mnt/arch /bin/bash -c "git clone https://github.com/vinceliuice/gru
 	rm -rf /mnt/arch/grub2-themes &&
 	sed -i "s|.*GRUB_THEME=.*|GRUB_THEME=\"boot\/grub\/themes\/vimix/theme.txt\"|" /mnt/arch/etc/default/grub &&
 	sed -i "s|.*GRUB_GFXMODE=.*|GRUB_GFXMODE=1920x1080,auto|" /mnt/arch/etc/default/grub &&
+	mkdir -p /mnt/arch/var/lock/dmraid &&
 	arch-chroot /mnt/arch /bin/bash -c "grub-mkconfig -o /boot/grub/grub.cfg"
 
 # Enable services
@@ -324,6 +325,7 @@ arch-chroot /mnt/arch /bin/bash -c "chmod +w /etc/sudoers &&
     chmod 0440 /etc/sudoers"
 
 echo "done"
+echo "NTFS doesnt have zstd COMPRESSION?"
 echo "dash not replacing bash after bash update"
 echo "zram works now?"
 echo "bluetooth is now experimental"
