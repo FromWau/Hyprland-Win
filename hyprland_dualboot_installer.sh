@@ -177,40 +177,6 @@ echo "$PKG_PACMAN" | xargs pacstrap /mnt/arch
 # generate fstab
 genfstab -U /mnt/arch >/mnt/arch/etc/fstab
 
-# Configure mkinicpio.conf
-sed -i 's/MODULES=()/MODULES=(btrfs nvidia nvidia_modeset nvidia_uvm nvidia_drm)/' /etc/mkinitcpio.conf &&
-	sed -i 's/BINARIES=()/BINARIES=("\/usr\/bin\/btrfs")/' /mnt/arch/etc/mkinitcpio.conf &&
-	sed -i 's/#COMPRESSION="lz4"/COMPRESSION="lz4"/' /mnt/arch/etc/mkinitcpio.conf &&
-	sed -i 's/#COMPRESSION_OPTIONS=()/COMPRESSION_OPTIONS=(-9)/' /mnt/arch/etc/mkinitcpio.conf &&
-	sed -i 's/^HOOKS.*/HOOKS=(base systemd btrfs autodetect modconf kms block keyboard sd-vconsole filesystems fsck)/' /mnt/arch/etc/mkinitcpio.conf &&
-	arch-chroot /mnt/arch /bin/bash -c "mkinitcpio -p linux"
-
-# Install and configure grub
-arch-chroot /mnt/arch /bin/bash -c 'grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB' &&
-	sed -i "s|^GRUB_TIMEOUT=.*|GRUB_TIMEOUT=3|" /mnt/arch/etc/default/grub &&
-	sed -i "s|^GRUB_CMDLINE_LINUX=.*|GRUB_CMDLINE_LINUX=\"rootfstype=btrfs nvidia_drm.modeset=1 rd.driver.blacklist=nouveau modprob.blacklist=nouveau\"|" /mnt/arch/etc/default/grub &&
-	sed -i "/#GRUB_DISABLE_OS_PROBER=.*/s/^#//" /mnt/arch/etc/default/grub
-
-# Add Reboot and Shutdown option to grub
-cat <<EOF >>/mnt/arch/etc/grub.d/40_custom
-menuentry "Reboot" {
-	  reboot
-}
-menuentry "Shutdown" {
-	  halt
-}
-EOF
-
-# Theme grub
-arch-chroot /mnt/arch /bin/bash -c "git clone https://github.com/vinceliuice/grub2-themes.git /grub2-themes" &&
-	mkdir -p /mnt/arch/boot/grub/themes &&
-	/mnt/arch/grub2-themes/install.sh -t vimix -g /mnt/arch/boot/grub/themes &&
-	rm -rf /mnt/arch/grub2-themes &&
-	sed -i "s|.*GRUB_THEME=.*|GRUB_THEME=\"boot\/grub\/themes\/vimix/theme.txt\"|" /mnt/arch/etc/default/grub &&
-	sed -i "s|.*GRUB_GFXMODE=.*|GRUB_GFXMODE=1920x1080,auto|" /mnt/arch/etc/default/grub &&
-	mkdir -p /mnt/arch/var/lock/dmraid &&
-	arch-chroot /mnt/arch /bin/bash -c "grub-mkconfig -o /boot/grub/grub.cfg"
-
 # Configure system
 timedatectl set-ntp true
 
@@ -259,8 +225,41 @@ arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'git clone https://
     yay -Syyyu --noconfirm --removemake --rebuild $PKG_AUR && 
     rm -rf ~/yay-git &&
     rm -rf ~/.rustup
-    rm -rf ~/.cargo
-    '"
+    rm -rf ~/.cargo'"
+
+# Configure mkinicpio.conf
+sed -i 's/MODULES=()/MODULES=(btrfs nvidia nvidia_modeset nvidia_uvm nvidia_drm)/' /etc/mkinitcpio.conf &&
+	sed -i 's/BINARIES=()/BINARIES=("\/usr\/bin\/btrfs")/' /mnt/arch/etc/mkinitcpio.conf &&
+	sed -i 's/#COMPRESSION="lz4"/COMPRESSION="lz4"/' /mnt/arch/etc/mkinitcpio.conf &&
+	sed -i 's/#COMPRESSION_OPTIONS=()/COMPRESSION_OPTIONS=(-9)/' /mnt/arch/etc/mkinitcpio.conf &&
+	sed -i 's/^HOOKS.*/HOOKS=(base systemd btrfs autodetect modconf kms block keyboard sd-vconsole filesystems fsck)/' /mnt/arch/etc/mkinitcpio.conf &&
+	arch-chroot /mnt/arch /bin/bash -c "mkinitcpio -p linux"
+
+# Install and configure grub
+arch-chroot /mnt/arch /bin/bash -c 'grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB' &&
+	sed -i "s|^GRUB_TIMEOUT=.*|GRUB_TIMEOUT=3|" /mnt/arch/etc/default/grub &&
+	sed -i "s|^GRUB_CMDLINE_LINUX=.*|GRUB_CMDLINE_LINUX=\"rootfstype=btrfs nvidia_drm.modeset=1 rd.driver.blacklist=nouveau modprob.blacklist=nouveau\"|" /mnt/arch/etc/default/grub &&
+	sed -i "/#GRUB_DISABLE_OS_PROBER=.*/s/^#//" /mnt/arch/etc/default/grub
+
+# Add Reboot and Shutdown option to grub
+cat <<EOF >>/mnt/arch/etc/grub.d/40_custom
+menuentry "Reboot" {
+	  reboot
+}
+menuentry "Shutdown" {
+	  halt
+}
+EOF
+
+# Theme grub
+arch-chroot /mnt/arch /bin/bash -c "git clone https://github.com/vinceliuice/grub2-themes.git /grub2-themes" &&
+	mkdir -p /mnt/arch/boot/grub/themes &&
+	/mnt/arch/grub2-themes/install.sh -t vimix -g /mnt/arch/boot/grub/themes &&
+	rm -rf /mnt/arch/grub2-themes &&
+	sed -i "s|.*GRUB_THEME=.*|GRUB_THEME=\"boot\/grub\/themes\/vimix/theme.txt\"|" /mnt/arch/etc/default/grub &&
+	sed -i "s|.*GRUB_GFXMODE=.*|GRUB_GFXMODE=1920x1080,auto|" /mnt/arch/etc/default/grub &&
+	mkdir -p /mnt/arch/var/lock/dmraid &&
+	arch-chroot /mnt/arch /bin/bash -c "grub-mkconfig -o /boot/grub/grub.cfg"
 
 # Clone and copy dotfiles
 arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'git clone https://github.com/FromWau/dotfiles.git ~/dotfiles'" &&
@@ -308,7 +307,7 @@ EOF
 sed -i "s/^#*Experimental =.*/Experimental = true/" /mnt/arch/etc/bluetooth/main.conf
 
 # Create playerctl systemd unit
-mkdir -p /mnt/arch/home/$USER_NAME/config/systemd/user &&
+mkdir -p /mnt/arch/home/$USER_NAME/.config/systemd/user &&
 	echo '[Unit]
 Description=Keep track of media player activity
 
