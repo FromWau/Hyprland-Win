@@ -177,6 +177,40 @@ echo "$PKG_PACMAN" | xargs pacstrap /mnt/arch
 # generate fstab
 genfstab -U /mnt/arch >/mnt/arch/etc/fstab
 
+# Configure mkinicpio.conf
+sed -i 's/MODULES=()/MODULES=(btrfs nvidia nvidia_modeset nvidia_uvm nvidia_drm)/' /etc/mkinitcpio.conf &&
+	sed -i 's/BINARIES=()/BINARIES=("\/usr\/bin\/btrfs")/' /mnt/arch/etc/mkinitcpio.conf &&
+	sed -i 's/#COMPRESSION="lz4"/COMPRESSION="lz4"/' /mnt/arch/etc/mkinitcpio.conf &&
+	sed -i 's/#COMPRESSION_OPTIONS=()/COMPRESSION_OPTIONS=(-9)/' /mnt/arch/etc/mkinitcpio.conf &&
+	sed -i 's/^HOOKS.*/HOOKS=(base systemd btrfs autodetect modconf kms block keyboard sd-vconsole filesystems fsck)/' /mnt/arch/etc/mkinitcpio.conf &&
+	arch-chroot /mnt/arch /bin/bash -c "mkinitcpio -p linux"
+
+# Install and configure grub
+arch-chroot /mnt/arch /bin/bash -c 'grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB' &&
+	sed -i "s|^GRUB_TIMEOUT=.*|GRUB_TIMEOUT=3|" /mnt/arch/etc/default/grub &&
+	sed -i "s|^GRUB_CMDLINE_LINUX=.*|GRUB_CMDLINE_LINUX=\"rootfstype=btrfs nvidia_drm.modeset=1 rd.driver.blacklist=nouveau modprob.blacklist=nouveau\"|" /mnt/arch/etc/default/grub &&
+	sed -i "/#GRUB_DISABLE_OS_PROBER=.*/s/^#//" /mnt/arch/etc/default/grub
+
+# Add Reboot and Shutdown option to grub
+cat <<EOF >>/mnt/arch/etc/grub.d/40_custom
+menuentry "Reboot" {
+	  reboot
+}
+menuentry "Shutdown" {
+	  halt
+}
+EOF
+
+# Theme grub
+arch-chroot /mnt/arch /bin/bash -c "git clone https://github.com/vinceliuice/grub2-themes.git /grub2-themes" &&
+	mkdir -p /mnt/arch/boot/grub/themes &&
+	/mnt/arch/grub2-themes/install.sh -t vimix -g /mnt/arch/boot/grub/themes &&
+	rm -rf /mnt/arch/grub2-themes &&
+	sed -i "s|.*GRUB_THEME=.*|GRUB_THEME=\"boot\/grub\/themes\/vimix/theme.txt\"|" /mnt/arch/etc/default/grub &&
+	sed -i "s|.*GRUB_GFXMODE=.*|GRUB_GFXMODE=1920x1080,auto|" /mnt/arch/etc/default/grub &&
+	mkdir -p /mnt/arch/var/lock/dmraid &&
+	arch-chroot /mnt/arch /bin/bash -c "grub-mkconfig -o /boot/grub/grub.cfg"
+
 # Configure system
 timedatectl set-ntp true
 
@@ -245,14 +279,6 @@ When = PostTransaction
 Exec = /usr/bin/ln -sfT dash /usr/bin/sh
 Depends = dash' >/mnt/arch/usr/share/libalpm/hooks/update-bash.hook
 
-# Configure mkinicpio.conf
-sed -i 's/MODULES=()/MODULES=(btrfs nvidia nvidia_modeset nvidia_uvm nvidia_drm)/' /etc/mkinitcpio.conf &&
-	sed -i 's/BINARIES=()/BINARIES=("\/usr\/bin\/btrfs")/' /mnt/arch/etc/mkinitcpio.conf &&
-	sed -i 's/#COMPRESSION="lz4"/COMPRESSION="lz4"/' /mnt/arch/etc/mkinitcpio.conf &&
-	sed -i 's/#COMPRESSION_OPTIONS=()/COMPRESSION_OPTIONS=(-9)/' /mnt/arch/etc/mkinitcpio.conf &&
-	sed -i 's/^HOOKS.*/HOOKS=(base systemd btrfs autodetect modconf kms block keyboard sd-vconsole filesystems fsck)/' /mnt/arch/etc/mkinitcpio.conf &&
-	arch-chroot /mnt/arch /bin/bash -c "mkinitcpio -p linux"
-
 # Set iwd as backend for networkmanager
 cat <<EOF >>/mnt/arch/etc/NetworkManager/conf.d/nm.conf
 [device]
@@ -294,29 +320,13 @@ WantedBy=default.target' >/mnt/arch/home/$USER_NAME/.config/systemd/user/playerc
 # Fix invisible hyprland cursor
 sed -i "s/^Exec=.*/Exec=env WLR_NO_HARDWARE_CURSORS=1 Hyprland/" /mnt/arch/usr/share/wayland-sessions/hyprland.desktop
 
-# Install and configure grub
-arch-chroot /mnt/arch /bin/bash -c 'grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB' &&
-	sed -i "s|^GRUB_TIMEOUT=.*|GRUB_TIMEOUT=3|" /mnt/arch/etc/default/grub &&
-	sed -i "s|^GRUB_CMDLINE_LINUX=.*|GRUB_CMDLINE_LINUX=\"rootfstype=btrfs nvidia_drm.modeset=1 rd.driver.blacklist=nouveau modprob.blacklist=nouveau\"|" /mnt/arch/etc/default/grub &&
-	sed -i "/#GRUB_DISABLE_OS_PROBER=.*/s/^#//" /mnt/arch/etc/default/grub
-
-# Theme grub
-arch-chroot /mnt/arch /bin/bash -c "git clone https://github.com/vinceliuice/grub2-themes.git /grub2-themes" &&
-	mkdir -p /mnt/arch/boot/grub/themes &&
-	/mnt/arch/grub2-themes/install.sh -t vimix -g /mnt/arch/boot/grub/themes &&
-	rm -rf /mnt/arch/grub2-themes &&
-	sed -i "s|.*GRUB_THEME=.*|GRUB_THEME=\"boot\/grub\/themes\/vimix/theme.txt\"|" /mnt/arch/etc/default/grub &&
-	sed -i "s|.*GRUB_GFXMODE=.*|GRUB_GFXMODE=1920x1080,auto|" /mnt/arch/etc/default/grub &&
-	mkdir -p /mnt/arch/var/lock/dmraid &&
-	arch-chroot /mnt/arch /bin/bash -c "grub-mkconfig -o /boot/grub/grub.cfg"
-
 # Enable services
-arch-chroot /mnt/arch /bin/bash -c "systemctl enable NetworkManager &&
+arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'systemctl enable NetworkManager &&
     systemctl enable sshd.service &&
     systemctl enable ly.service &&
     systemctl enable bluetooth.service &&
-    systemctl enable upower.service" &&
-	arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'systemctl --user enable playerctld.service'"
+    systemctl enable upower.service &&
+    systemctl --user enable playerctld.service'"
 
 # Set wheel to passwd
 arch-chroot /mnt/arch /bin/bash -c "chmod +w /etc/sudoers &&
