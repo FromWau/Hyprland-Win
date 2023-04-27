@@ -253,12 +253,14 @@ arch-chroot /mnt/arch /bin/bash -c "chmod +w /etc/sudoers &&
     chmod 0440 /etc/sudoers"
 
 # install yay and aur pkgs
-arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'export CARGO_HOME=$XDG_DATA_HOME/cargo && export RUSTUP_HOME=$XDG_DATA_HOME/rustup &&
-    git clone https://aur.archlinux.org/yay-git.git ~/yay-git &&
+arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'git clone https://aur.archlinux.org/yay-git.git ~/yay-git &&
     cd ~/yay-git &&
     makepkg -si --noconfirm &&
+    yay -Syyyu --noconfirm --removemake --rebuild $PKG_AUR && 
     rm -rf ~/yay-git &&
-    yay -Syyyu --noconfirm --removemake --rebuild $PKG_AUR'"
+    rm -rf ~/.rustup
+    rm -rf ~/.cargo
+    '"
 
 # Clone and copy dotfiles
 arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'git clone https://github.com/FromWau/dotfiles.git ~/dotfiles'" &&
@@ -321,11 +323,11 @@ WantedBy=default.target' >/mnt/arch/home/$USER_NAME/.config/systemd/user/playerc
 sed -i "s/^Exec=.*/Exec=env WLR_NO_HARDWARE_CURSORS=1 Hyprland/" /mnt/arch/usr/share/wayland-sessions/hyprland.desktop
 
 # Enable services
-arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'systemctl enable NetworkManager &&
-    systemctl enable sshd.service &&
-    systemctl enable ly.service &&
-    systemctl enable bluetooth.service &&
-    systemctl enable upower.service &&
+arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'sudo systemctl enable NetworkManager &&
+    sudo systemctl enable sshd.service &&
+    sudo systemctl enable ly.service &&
+    sudo systemctl enable bluetooth.service &&
+    sudo systemctl enable upower.service &&
     systemctl --user enable playerctld.service'"
 
 # Set wheel to passwd
