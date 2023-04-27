@@ -291,6 +291,9 @@ ExecStart=/usr/bin/playerctld daemon
 [Install]
 WantedBy=default.target' >/mnt/arch/home/$USER_NAME/config/systemd/user/playerctld.service
 
+# Fix invisible hyprland cursor
+sed -i "s/^Exec=.*/Exec=env WLR_NO_HARDWARE_CURSORS=1 Hyprland/" /mnt/arch/usr/share/wayland-sessions/hyprland.desktop
+
 # Install and configure grub
 arch-chroot /mnt/arch /bin/bash -c 'grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB' &&
 	sed -i "s|^GRUB_TIMEOUT=.*|GRUB_TIMEOUT=3|" /mnt/arch/etc/default/grub &&
@@ -324,6 +327,7 @@ echo "done"
 echo "dash not replacing bash after bash update"
 echo "zram works now?"
 echo "bluetooth is now experimental"
+echo "cursor fixed"
 echo "?maybe clean up home dir?"
 echo "os prober unable to create some dir"
 echo
