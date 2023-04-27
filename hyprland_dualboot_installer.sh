@@ -181,8 +181,8 @@ genfstab -U /mnt/arch >/mnt/arch/etc/fstab
 timedatectl set-ntp true
 
 # copy pacman configs
-cp /etc/pacman.d/mirrorlist /mnt/arch/etc/pacman.d/mirrorlist
-cp /etc/pacman.conf /mnt/arch/etc
+cp -p /etc/pacman.d/mirrorlist /mnt/arch/etc/pacman.d/mirrorlist
+cp -p /etc/pacman.conf /mnt/arch/etc
 
 # Set locale
 sed -i "/$LOCALE/s/^#//g" /mnt/arch/etc/locale.gen &&
@@ -228,8 +228,8 @@ arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'export CARGO_HOME=
 
 # Clone and copy dotfiles
 arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'git clone https://github.com/FromWau/dotfiles.git ~/dotfiles'" &&
-	cp -r /mnt/arch/home/"$USER_NAME"/dotfiles/.local /mnt/arch/home/"$USER_NAME" &&
-	cp -r /mnt/arch/home/"$USER_NAME"/dotfiles/.config/{btop,eww,fish,hypr,kitty,ncspot,nvim,ranger,rofi,starship.toml} /mnt/arch/home/"$USER_NAME"/.config &&
+	cp -rp /mnt/arch/home/"$USER_NAME"/dotfiles/.local /mnt/arch/home/"$USER_NAME" &&
+	cp -rp /mnt/arch/home/"$USER_NAME"/dotfiles/.config/{btop,eww,fish,hypr,kitty,ncspot,nvim,ranger,rofi,starship.toml} /mnt/arch/home/"$USER_NAME"/.config &&
 	rm -rf /mnt/arch/home/"$USER_NAME"/dotfiles
 
 # create dash hook
@@ -270,23 +270,26 @@ ACTION=="add|change", KERNEL=="sd[a-z]", ATTR{queue/rotational}=="1", ATTR{queue
 EOF
 
 # Create zram
-cat <<EOF >/mnt/arch/etc/systemd/swap.conf
-#  This file is part of systemd-swap.
-#
-# Entries in this file show the systemd-swap defaults asrufus arch
-# specified in /usr/share/systemd-swap/swap-default.conf
-# You can change settings by editing this file.
-# Defaults can be restored by simply deleting this file.
-#
-# See swap.conf(5) and /usr/share/systemd-swap/swap-default.conf for details.
-zram_enabled=1
-zswap_enabled=0
-swapfc_enabled=0
-zram_size=\$(( RAM_SIZE / 4 ))
+cat <<EOF >/mnt/arch/etc/systemd/zram-generator.conf
+[zram0]
+zram-size = ram / 4
+compression-algorithm = zstd
 EOF
 
 # Set Bluetooth to use experimental backend
-sed -i "s/ExecStart.*/ExecStart\=\/usr\/lib\/bluetooth\/bluetoothd --experimental/" /mnt/arch/usr/lib/systemd/system/bluetooth.service
+sed -i "s/^#*Experimental =.*/Experimental = true/" /mnt/arch/etc/bluetooth/main.conf
+
+# Create playerctl systemd unit
+mkdir -p /mnt/arch/home/$USER_NAME/config/systemd/user &&
+	echo '[Unit]
+Description=Keep track of media player activity
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/playerctld daemon
+
+[Install]
+WantedBy=default.target' >/mnt/arch/home/$USER_NAME/config/systemd/user/playerctld.service
 
 # Install and configure grub
 arch-chroot /mnt/arch /bin/bash -c 'grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB' &&
@@ -303,12 +306,13 @@ arch-chroot /mnt/arch /bin/bash -c "git clone https://github.com/vinceliuice/gru
 	sed -i "s|.*GRUB_GFXMODE=.*|GRUB_GFXMODE=1920x1080,auto|" /mnt/arch/etc/default/grub &&
 	arch-chroot /mnt/arch /bin/bash -c "grub-mkconfig -o /boot/grub/grub.cfg"
 
-# Enable service
+# Enable services
 arch-chroot /mnt/arch /bin/bash -c "systemctl enable NetworkManager &&
     systemctl enable sshd.service &&
     systemctl enable ly.service &&
     systemctl enable bluetooth.service &&
-    systemctl enable upower.service"
+    systemctl enable upower.service" &&
+	arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'systemctl --user enable playerctld.service'"
 
 # Set wheel to passwd
 arch-chroot /mnt/arch /bin/bash -c "chmod +w /etc/sudoers &&
@@ -317,7 +321,11 @@ arch-chroot /mnt/arch /bin/bash -c "chmod +w /etc/sudoers &&
     chmod 0440 /etc/sudoers"
 
 echo "done"
+echo "dash not replacing bash after bash update"
+echo "zram works now?"
+echo "bluetooth is now experimental"
 echo "?maybe clean up home dir?"
+echo "os prober unable to create some dir"
 echo
 echo "before rebooting"
 echo "run:"
