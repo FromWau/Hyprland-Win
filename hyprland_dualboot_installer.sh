@@ -41,8 +41,11 @@ CHECK='✔'
 CROSS='✗'
 ARROW=''
 
-# Create log dir
-mkdir -p /mnt/log
+# echos and logs
+function log {
+	[[ ! -d /mnt/arch/log ]] && mkdir -p /mnt/arch/log
+	echo -e "$1" | tee -a /mnt/arch/log/$LOG_FILE
+}
 
 # Check if disks are correctly assigned
 if [ "$(lsblk | grep -c "nvme1n1p")" -eq "2" ]; then
@@ -54,7 +57,7 @@ if [ "$(lsblk | grep -c "nvme1n1p")" -eq "2" ]; then
 	DISK_ARCH='/dev/nvme0n1p4'
 fi
 
-echo -e "$LOGO
+log "$LOGO
 
 ---------------------------- Set Variables ----------------------------
 CONFIGS:
@@ -69,10 +72,7 @@ LOCALE=$LOCALE
 -----------------------------------------------------------------------
 
 DISKS:
-HDD:
 DISK_VAULT=$DISK_VAULT
-
-
 DISK_DOCUMENTS=$DISK_DOCUMENTS
 DISK_GAMES=$DISK_GAMES
 DISK_BOOT=$DISK_BOOT
@@ -85,9 +85,9 @@ PKGS:
 PACMAN: $PKG_PACMAN
 AUR: $PKG_AUR
 -----------------------------------------------------------------------
+-----------------------------------------------------------------------
 
-What happened:
-" >/mnt/log/$LOG_FILE
+"
 
 # whiptail colors
 export NEWT_COLORS='
