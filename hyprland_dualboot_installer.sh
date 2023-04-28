@@ -244,10 +244,10 @@ arch-chroot /mnt/arch /bin/bash -c 'grub-install --target=x86_64-efi --efi-direc
 # Add Reboot and Shutdown option to grub
 cat <<EOF >>/mnt/arch/etc/grub.d/40_custom
 menuentry "Reboot" {
-	  reboot
+    reboot
 }
 menuentry "Shutdown" {
-	  halt
+    halt
 }
 EOF
 
@@ -258,7 +258,6 @@ arch-chroot /mnt/arch /bin/bash -c "git clone https://github.com/vinceliuice/gru
 	rm -rf /mnt/arch/grub2-themes &&
 	sed -i "s|.*GRUB_THEME=.*|GRUB_THEME=\"boot\/grub\/themes\/vimix/theme.txt\"|" /mnt/arch/etc/default/grub &&
 	sed -i "s|.*GRUB_GFXMODE=.*|GRUB_GFXMODE=1920x1080,auto|" /mnt/arch/etc/default/grub &&
-	mkdir -p /mnt/arch/var/lock/dmraid &&
 	arch-chroot /mnt/arch /bin/bash -c "grub-mkconfig -o /boot/grub/grub.cfg"
 
 # Clone and copy dotfiles
