@@ -123,10 +123,9 @@ lsblk | eval ! grep "$(echo "$DISK_ARCH" | awk -F'/' '{print $3}')" >/dev/null &
 cd ~ && umount /mnt/arch/{home,var/cache/pacman/pkg,var/log,.snapshots,btrfs,win10,documents,games,vaul,boot} /mnt/arch
 
 # Setup Filesystem
-mkfs.vfat -F32 -n "EFI" $DISK_BOOT &&
-	mkfs.btrfs -L Arch -f $DISK_ARCH &&
-	echo "$CHECK Created boot and linux filesystems" ||
-	echo "$CROSS FAILED to create boot and linux filesystems"
+mkfs.btrfs -L Arch -f $DISK_ARCH &&
+	echo "$CHECK Created linux filesystems" ||
+	echo "$CROSS FAILED to create arch linux filesystems"
 
 # Create Sub volumes
 mkdir -p /mnt/arch
