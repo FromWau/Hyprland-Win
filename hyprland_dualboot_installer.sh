@@ -143,27 +143,27 @@ mount $DISK_ARCH /mnt/arch &&
 
 # Mount sub volumes
 mount -o noatime,compress-force=zstd,commit=120,space_cache=v2,ssd,discard=async,autodefrag,subvol=@ $DISK_ARCH /mnt/arch &&
-	mkdir -p /mnt/arch/{home,var/cache/pacman/pkg,var/log,.snapshots,btrfs} &&
-	mount -o noatime,compress-force=zstd,commit=120,space_cache=v2,ssd,discard=async,autodefrag,subvol=@home $DISK_ARCH /mnt/arch/home &&
+	mkdir -p /mnt/arch/{home,var/cache/pacman/pkg,var/log,.snapshots,btrfs}
+mount -o noatime,compress-force=zstd,commit=120,space_cache=v2,ssd,discard=async,autodefrag,subvol=@home $DISK_ARCH /mnt/arch/home &&
 	mount -o nodev,nosuid,noexec,noatime,compress-force=zstd,commit=120,space_cache=v2,ssd,discard=async,autodefrag,subvol=@log $DISK_ARCH /mnt/arch/var/log &&
 	mount -o nodev,nosuid,noexec,noatime,compress-force=zstd,commit=120,space_cache=v2,ssd,discard=async,autodefrag,subvol=@pkg $DISK_ARCH /mnt/arch/var/cache/pacman/pkg &&
 	mount -o noatime,compress-force=zstd,commit=120,space_cache=v2,ssd,discard=async,autodefrag,subvol=@.snapshots $DISK_ARCH /mnt/arch/.snapshots &&
 	mount -o noatime,compress-force=zstd,commit=120,space_cache=v2,ssd,discard=async,autodefrag,subvolid=5 $DISK_ARCH /mnt/arch/btrfs
 
 # Disable Copy on Write for databases
-mkdir -p /mnt/arch/var/lib/{docker,machines,mysql,postgres} &&
-	chattr +C /mnt/arch/var/lib/{docker,machines,mysql,postgres}
+mkdir -p /mnt/arch/var/lib/{docker,machines,mysql,postgres}
+chattr +C /mnt/arch/var/lib/{docker,machines,mysql,postgres}
 
 # Mount NTFS DISKS
-mkdir -p /mnt/arch/{win10,documents,games,vaul} &&
-	mount -o noatime,compress-force=zstd,commit=120,space_cache=v2,ssd,discard=async,autodefrag $DISK_WIN10 /mnt/arch/win10 &&
+mkdir -p /mnt/arch/{win10,documents,games,vaul}
+mount -o noatime,compress-force=zstd,commit=120,space_cache=v2,ssd,discard=async,autodefrag $DISK_WIN10 /mnt/arch/win10 &&
 	mount -o noatime,compress-force=zstd,commit=120,space_cache=v2,ssd,discard=async,autodefrag $DISK_DOCUMENTS /mnt/arch/documents &&
 	mount -o noatime,compress-force=zstd,commit=120,space_cache=v2,ssd,discard=async,autodefrag $DISK_GAMES /mnt/arch/games &&
 	mount -o noatime,compress-force=zstd,autodefrag $DISK_VAULT /mnt/arch/vault
 
 # Mount boot
-mkdir -p /mnt/arch/boot &&
-	mount -o nodev,nosuid,noexec $DISK_BOOT /mnt/arch/boot
+mkdir -p /mnt/arch/boot
+mount -o nodev,nosuid,noexec $DISK_BOOT /mnt/arch/boot
 
 # Setup pacman and update mirrorlist
 sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf &&
@@ -306,8 +306,8 @@ EOF
 sed -i "s/^#*Experimental =.*/Experimental = true/" /mnt/arch/etc/bluetooth/main.conf
 
 # Create playerctl systemd unit
-mkdir -p /mnt/arch/home/$USER_NAME/.config/systemd/user &&
-	cat <<EOF >/mnt/arch/home/$USER_NAME/.config/systemd/user/playerctld.service &&
+mkdir -p /mnt/arch/home/$USER_NAME/.config/systemd/user
+cat <<EOF >/mnt/arch/home/$USER_NAME/.config/systemd/user/playerctld.service &&
 [Unit]
 Description=Keep track of media player activity
 
