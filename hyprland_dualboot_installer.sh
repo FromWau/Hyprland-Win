@@ -154,7 +154,7 @@ mkdir -p /mnt/arch/var/lib/{docker,machines,mysql,postgres}
 chattr +C /mnt/arch/var/lib/{docker,machines,mysql,postgres}
 
 # Mount NTFS DISKS
-mkdir -p /mnt/arch/{win10,documents,games,vaul}
+mkdir -p /mnt/arch/{win10,documents,games,vault}
 mount -o noatime,compress-force=zstd,commit=120,space_cache=v2,ssd,discard=async,autodefrag $DISK_WIN10 /mnt/arch/win10 &&
 	mount -o noatime,compress-force=zstd,commit=120,space_cache=v2,ssd,discard=async,autodefrag $DISK_DOCUMENTS /mnt/arch/documents &&
 	mount -o noatime,compress-force=zstd,commit=120,space_cache=v2,ssd,discard=async,autodefrag $DISK_GAMES /mnt/arch/games &&
