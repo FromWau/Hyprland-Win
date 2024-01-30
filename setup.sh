@@ -121,9 +121,6 @@ lsblk | eval ! grep "$(echo "$DISK_WIN10_RES" | awk -F'/' '{print $3}')" >/dev/n
 lsblk | eval ! grep "$(echo "$DISK_WIN10" | awk -F'/' '{print $3}')" >/dev/null && echo "$CROSS $DISK_WIN10 does not exists" && exit 1
 lsblk | eval ! grep "$(echo "$DISK_ARCH" | awk -F'/' '{print $3}')" >/dev/null && echo "$CROSS $DISK_ARCH does not exists" && exit 1
 
-# Unmount all the drives
-cd ~ && umount /mnt/arch/{home,var/cache/pacman/pkg,var/log,.snapshots,btrfs,win10,documents,games,vaul,boot} /mnt/arch
-
 # Setup Filesystem
 mkfs.btrfs -L Arch -f $DISK_ARCH &&
 	echo "$CHECK Created linux filesystems" ||
