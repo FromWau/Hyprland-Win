@@ -303,21 +303,6 @@ EOF
 # Set Bluetooth to use experimental backend
 sed -i "s/^#*Experimental =.*/Experimental = true/" /mnt/arch/etc/bluetooth/main.conf
 
-# Create playerctl systemd unit
-mkdir -p /mnt/arch/home/$USER_NAME/.config/systemd/user
-cat <<EOF >/mnt/arch/home/$USER_NAME/.config/systemd/user/playerctld.service &&
-[Unit]
-Description=Keep track of media player activity
-
-[Service]
-Type=oneshot
-ExecStart=/usr/bin/playerctld daemon
-
-[Install]
-WantedBy=default.target
-EOF
-	arch-chroot /mnt/arch /bin/bash -c "chown -R $USER_NAME:$USER_NAME /home/$USER_NAME/.config/systemd"
-
 # Fix invisible hyprland cursor
 sed -i "s/^Exec=.*/Exec=env WLR_NO_HARDWARE_CURSORS=1 Hyprland/" /mnt/arch/usr/share/wayland-sessions/hyprland.desktop
 
@@ -326,8 +311,7 @@ arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'sudo systemctl ena
     sudo systemctl enable sshd.service &&
     sudo systemctl enable ly.service &&
     sudo systemctl enable bluetooth.service &&
-    sudo systemctl enable upower.service &&
-    systemctl --user enable playerctld.service'"
+    sudo systemctl enable upower.service'"
 
 # Set wheel to passwd
 arch-chroot /mnt/arch /bin/bash -c "chmod +w /etc/sudoers &&
