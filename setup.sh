@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # Settings
 LOG_FILE='hyprland-setup.log'
 
@@ -20,8 +22,8 @@ DISK_WIN10_RES='/dev/nvme1n1p2'
 DISK_WIN10='/dev/nvme1n1p3'
 DISK_ARCH='/dev/nvme1n1p4'
 
-PKG_PACMAN='base base-devel linux linux-firmware linux-headers btrfs-progs os-prober efibootmgr zstd ntfs-3g grub-btrfs zram-generator nvidia nvidia-settings nvidia-dkms nvidia-utils amd-ucode openssh git man reflector iwd networkmanager systemd-swap pipewire pipewire-alsa pipewire-jack pipewire-pulse wireplumber blueberry bluez bluez-utils bluedevil procs tldr curl wget fzf exa ripgrep jq dash fish dunst neofetch neovim kitty starship btop ncspot ranger lolcat cowsay playerctl thunderbird discord firefox kdeconnect ttf-firacode-nerd wl-clipboard wofi wlroots xdg-desktop-portal-hyprland hyprland hyprpaper'
-PKG_AUR='ly nerdfetch shell-color-scripts eww-wayland mpvpaper'
+PKG_PACMAN='amd-ucode base base-devel bash bat blueberry bluedevil bluez bluez-hid2hci bluez-utils btop btrfs-progs cliphist curl dash dunst efibootmgr eza fastfetch fd firefox fish fwupd fzf git git-delta grim grub-btrfs iwd jq kdeconnect kitty lazygit linux linux-firmware linux-headers ly man neovim networkmanager noto-fonts-emoji nvidia-dkms ntfs-3g os-prober openssh pacman pavucontrol pipewire pipewire-alsa pipewire-audio pipewire-pulse playerctl polkit-kde-agent procs reflector ripgrep rsync slurp starship sudo thunderbird tldr ttf-firacode-nerd ttf-joypixels wget wireplumber wl-clipboard wofi xdg-desktop-portal-hyprland zoxide zram-generator zstd'
+PKG_AUR='aylurs-gtk-shell-git cava dracula-gtk-theme dracula-icons-theme hyprland-git pywal-16-colors spotify-player-full-git swww systemd-swap udiskie-systemd-git ueberzugpp wlroots-nvidia wofi-calc xwaylandvideobridge-git yay-git'
 # =====================================================================
 
 LOGO=$(
