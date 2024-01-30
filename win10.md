@@ -1,4 +1,4 @@
-# We need a bigger System (/boot) partition for both windows and linux.
+## We need a bigger System (/boot) partition for both windows and linux. And also we want to setup windows.
 ### Install Windows until we reach the partition screen. 
 
 1) Select target and make sure it has no partitions.
