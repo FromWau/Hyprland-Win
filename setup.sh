@@ -192,7 +192,7 @@ echo "KEYMAP=$KEYLAYOUT" >/mnt/arch/etc/vconsole.conf
 
 # Set timezone
 ln -sf /mnt/arch/usr/share/zoneinfo/$TIMEZONE /mnt/arch/etc/localtime &&
-	arch-chroot /mnt/arch /bin/bash -c "hwclock -uw"
+	arch-chroot /mnt/arch /bin/bash -c "hwclock -uw && timedatectl set-timezone $TIMEZONE"
 
 # Set hostname
 echo "${HOST}" >/mnt/arch/etc/hostname
