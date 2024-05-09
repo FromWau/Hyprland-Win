@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -e
 
@@ -24,6 +24,8 @@ DISK_ARCH='/dev/nvme1n1p4'
 
 PKG_PACMAN='amd-ucode base base-devel bash bat blueberry bluedevil bluez bluez-hid2hci bluez-utils btop btrfs-progs cliphist curl dash dunst efibootmgr eza fastfetch fd firefox fish fwupd fzf git git-delta grim grub-btrfs iwd jq kdeconnect kitty lazygit linux linux-firmware linux-headers ly man neovim networkmanager noto-fonts-emoji nvidia-dkms ntfs-3g os-prober openssh pacman pavucontrol pipewire pipewire-alsa pipewire-audio pipewire-pulse playerctl polkit-kde-agent procs reflector ripgrep rsync slurp starship sudo thunderbird tldr ttf-firacode-nerd ttf-joypixels wget wireplumber wl-clipboard wofi xdg-desktop-portal-hyprland zoxide zram-generator zstd'
 PKG_AUR='aylurs-gtk-shell-git cava dracula-gtk-theme dracula-icons-theme hyprland-git pywal-16-colors spotify-player-full-git swww systemd-swap udiskie-systemd-git ueberzugpp wlroots-nvidia wofi-calc xwaylandvideobridge-git yay-git'
+
+SETUP_GAMING='true'
 # =====================================================================
 
 LOGO=$(
@@ -41,7 +43,6 @@ END_HEREDOC
 # Symbols
 CHECK='✔'
 CROSS='✗'
-ARROW=''
 
 # echos and logs
 function log {
@@ -312,6 +313,44 @@ arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'sudo systemctl ena
     sudo systemctl enable ly.service &&
     sudo systemctl enable bluetooth.service &&
     sudo systemctl enable upower.service'"
+
+# Gaming/Performance tweaks (https://wiki.archlinux.org/title/gaming)
+if [ "$SETUP_GAMING" = "true" ]; then
+
+	# Increase vm.max_map_count to default in SteamOS
+	mkdir -p /mnt/arch/etc/sysctl.d/
+	echo 'vm.max_map_count = 2147483642' >/mnt/arch/etc/sysctl.d/80-gamecompatibility.conf
+
+	# INFO:
+	# - Disable proactive compaction because it introduces jitter
+	# - Reduce the watermark boost factor to defragment only one pageblock in case of memory fragmentation
+	# - Avoid swapping (locking pages that introduces latency and uses disk IO)
+	# - Enable Multi-Gen Least Recently Used (MGLRU)
+	# - Disable zone reclaim
+	# - Reduce the maximum page lock acquisition latency
+	# - Tweak the scheduler settings
+	mkdir -p /mnt/arch/etc/tmpfiles.d/
+	cat <<EOF >/etc/tmpfiles.d/consistent-response-time-for-gaming.conf
+#    Path                  Mode UID  GID  Age Argument
+w /proc/sys/vm/compaction_proactiveness - - - - 0
+w /proc/sys/vm/watermark_boost_factor - - - - 1
+w /proc/sys/vm/swappiness - - - - 10
+w /sys/kernel/mm/lru_gen/enabled - - - - 5
+w /proc/sys/vm/zone_reclaim_mode - - - - 0
+w /proc/sys/vm/page_lock_unfairness - - - - 1
+w /proc/sys/kernel/sched_child_runs_first - - - - 0
+w /proc/sys/kernel/sched_autogroup_enabled - - - - 1
+w /proc/sys/kernel/sched_cfs_bandwidth_slice_us - - - - 3000
+w /sys/kernel/debug/sched/base_slice_ns  - - - - 3000000
+w /sys/kernel/debug/sched/migration_cost_ns - - - - 500000
+w /sys/kernel/debug/sched/nr_migrate - - - - 8
+EOF
+	arch-chroot /mnt/arch /bin/bash -c "sysctl --system"
+
+	arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'yay -Syyyu --noconfirm --removemake --rebuild gamemode mangohud schedtoold'"
+
+	arch-chroot /mnt/arch /bin/bash -c "usermod -a -G gamemode $USER_NAME"
+fi
 
 # Set wheel to passwd
 arch-chroot /mnt/arch /bin/bash -c "chmod +w /etc/sudoers &&
