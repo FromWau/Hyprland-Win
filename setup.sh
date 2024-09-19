@@ -102,7 +102,12 @@ fi
 echo "Starting setup..."
 
 # Setup Filesystem
-mkfs.btrfs -L Arch -f $DISK_ARCH_ROOT &&
+mkfs.btrfs -L ArchRoot -f $DISK_ARCH_ROOT &&
+	echo "$CHECK Created linux filesystems" ||
+	echo "$CROSS FAILED to create arch linux filesystems"
+
+# Setup Filesystem
+mkfs.btrfs -L ArchHome -f $DISK_ARCH_HOME &&
 	echo "$CHECK Created linux filesystems" ||
 	echo "$CROSS FAILED to create arch linux filesystems"
 
