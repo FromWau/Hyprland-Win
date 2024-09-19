@@ -14,16 +14,15 @@ HOST='archner'
 COUNTRY='AT'
 LOCALE='en_US.UTF-8'
 
-DISK_VAULT='/dev/sda3'
-DISK_DOCUMENTS='/dev/nvme0n1p1'
-DISK_GAMES='/dev/nvme0n1p2'
 DISK_BOOT='/dev/nvme1n1p1'
-DISK_WIN10_RES='/dev/nvme1n1p2'
-DISK_WIN10='/dev/nvme1n1p3'
-DISK_ARCH='/dev/nvme1n1p4'
+DISK_ARCH_ROOT='/dev/nvme1n1p2'
+DISK_ARCH_HOME='/dev/nvme1n1p3'
 
-PKG_PACMAN='amd-ucode base base-devel bash bat blueberry bluedevil bluez bluez-hid2hci bluez-utils btop btrfs-progs cliphist curl dash dunst efibootmgr eza fastfetch fd firefox fish fwupd fzf git git-delta grim grub-btrfs iwd jq kdeconnect kitty lazygit linux linux-firmware linux-headers ly man neovim networkmanager noto-fonts-emoji nvidia-dkms ntfs-3g os-prober openssh pacman pavucontrol pipewire pipewire-alsa pipewire-audio pipewire-pulse playerctl polkit-kde-agent procs reflector ripgrep rsync slurp starship sudo thunderbird tldr ttf-firacode-nerd ttf-joypixels wget wireplumber wl-clipboard wofi xdg-desktop-portal-hyprland zoxide zram-generator zstd'
-PKG_AUR='aylurs-gtk-shell-git cava dracula-gtk-theme dracula-icons-theme hyprland-git pywal-16-colors spotify-player-full-git swww systemd-swap udiskie-systemd-git ueberzugpp wlroots-nvidia wofi-calc xwaylandvideobridge-git yay-git'
+DISK_VAULT='/dev/sda3'
+DISK_WIN='/dev/nvme0n1p3'
+
+PKG_PACMAN='amd-ucode base base-devel bash bat blueberry bluedevil bluez bluez-utils btop btrfs-progs cliphist curl dunst efibootmgr eza fastfetch fd firefox fish fwupd fzf git git-delta grim grub-btrfs iwd jq kdeconnect kitty lazygit linux linux-firmware linux-headers man neovim networkmanager noto-fonts-emoji nvidia-dkms ntfs-3g os-prober openssh pacman pavucontrol pipewire pipewire-alsa pipewire-audio pipewire-pulse playerctl polkit-kde-agent procs reflector ripgrep rsync slurp starship sudo thunderbird tldr ttf-firacode-nerd ttf-joypixels wget wireplumber wl-clipboard xdg-desktop-portal-hyprland zoxide zram-generator zstd'
+PKG_AUR='aylurs-gtk-shell-git cava dracula-gtk-theme dracula-icons-theme hyprland anyrun-git bun-bin gnome-bluetooth-3.0 mpc mpd mpv npm nwg-look sddm sddm-astronaut-theme steam schedtoold timeshift timeshift-autosnap python-pywal16 python-pywalfox swww systemd-swap udiskie-systemd-git ueberzugpp wlroots-nvidia xwaylandvideobridge yay'
 
 SETUP_GAMING='true'
 # =====================================================================
@@ -50,16 +49,6 @@ function log {
 	echo -e "$1" | tee -a /mnt/arch/log/$LOG_FILE
 }
 
-# Check if disks are correctly assigned
-if [ "$(lsblk | grep -c "nvme1n1p")" -eq "2" ]; then
-	DISK_DOCUMENTS='/dev/nvme1n1p1'
-	DISK_GAMES='/dev/nvme1n1p2'
-	DISK_BOOT='/dev/nvme0n1p1'
-	DISK_WIN10_RES='/dev/nvme0n1p2'
-	DISK_WIN10='/dev/nvme0n1p3'
-	DISK_ARCH='/dev/nvme0n1p4'
-fi
-
 log "$LOGO
 
 ---------------------------- Set Variables ----------------------------
@@ -75,13 +64,12 @@ LOCALE=$LOCALE
 -----------------------------------------------------------------------
 
 DISKS:
-DISK_VAULT=$DISK_VAULT
-DISK_DOCUMENTS=$DISK_DOCUMENTS
-DISK_GAMES=$DISK_GAMES
 DISK_BOOT=$DISK_BOOT
-DISK_WIN10_RES=$DISK_WIN10_RES
-DISK_WIN10=$DISK_WIN10
-DISK_ARCH=$DISK_ARCH
+DISK_ARCH_ROOT=$DISK_ARCH_ROOT
+DISK_ARCH_HOME=$DISK_ARCH_HOME
+DISK_VAULT=$DISK_VAULT
+DISK_WIN=$DISK_WIN
+
 -----------------------------------------------------------------------
 
 PKGS:
@@ -113,51 +101,46 @@ fi
 
 echo "Starting setup..."
 
-# Check if all disks exists
-lsblk | eval ! grep "$(echo "$DISK_VAULT" | awk -F'/' '{print $3}')" >/dev/null && echo "$CROSS $DISK_VAULT does not exists" && exit 1
-lsblk | eval ! grep "$(echo "$DISK_DOCUMENTS" | awk -F'/' '{print $3}')" >/dev/null && echo "$CROSS $DISK_DOCUMENTS does not exists" && exit 1
-lsblk | eval ! grep "$(echo "$DISK_GAMES" | awk -F'/' '{print $3}')" >/dev/null && echo "$CROSS $DISK_GAMES does not exists" && exit 1
-lsblk | eval ! grep "$(echo "$DISK_BOOT" | awk -F'/' '{print $3}')" >/dev/null && echo "$CROSS $DISK_BOOT does not exists" && exit 1
-lsblk | eval ! grep "$(echo "$DISK_WIN10_RES" | awk -F'/' '{print $3}')" >/dev/null && echo "$CROSS $DISK_WIN10_RES does not exists" && exit 1
-lsblk | eval ! grep "$(echo "$DISK_WIN10" | awk -F'/' '{print $3}')" >/dev/null && echo "$CROSS $DISK_WIN10 does not exists" && exit 1
-lsblk | eval ! grep "$(echo "$DISK_ARCH" | awk -F'/' '{print $3}')" >/dev/null && echo "$CROSS $DISK_ARCH does not exists" && exit 1
-
 # Setup Filesystem
-mkfs.btrfs -L Arch -f $DISK_ARCH &&
+mkfs.btrfs -L Arch -f $DISK_ARCH_ROOT &&
 	echo "$CHECK Created linux filesystems" ||
 	echo "$CROSS FAILED to create arch linux filesystems"
 
 # Create Sub volumes
 mkdir -p /mnt/arch
-mount $DISK_ARCH /mnt/arch &&
+mount $DISK_ARCH_ROOT /mnt/arch &&
 	btrfs sub create /mnt/arch/@ &&
-	btrfs sub create /mnt/arch/@home &&
 	btrfs sub create /mnt/arch/@.snapshots &&
 	btrfs sub create /mnt/arch/@btrfs &&
 	btrfs sub create /mnt/arch/@log &&
 	btrfs sub create /mnt/arch/@pkg &&
 	umount /mnt/arch &&
-	echo "$CHECK Created subvolumes @, @home, @.snapshots, @btrfs, @log, @pkg" ||
-	echo "$CROSS FAILED to create subvolumes @, @home, @.snapshots, @btrfs, @log, @pkg"
+	echo "$CHECK Created subvolumes @, @.snapshots, @btrfs, @log, @pkg" ||
+	echo "$CROSS FAILED to create subvolumes @, @.snapshots, @btrfs, @log, @pkg"
+
+mkdir -p /mnt/home
+mount $DISK_ARCH_HOME /mnt/home &&
+	btrfs sub create /mnt/home/@home &&
+	umount /mnt/home &&
+	echo "$CHECK Created subvolumes @home" ||
+	echo "$CROSS FAILED to create subvolumes @home"
 
 # Mount sub volumes
-mount -o noatime,compress-force=zstd,commit=120,space_cache=v2,ssd,discard=async,autodefrag,subvol=@ $DISK_ARCH /mnt/arch &&
-	mkdir -p /mnt/arch/{home,var/cache/pacman/pkg,var/log,.snapshots,btrfs}
-mount -o noatime,compress-force=zstd,commit=120,space_cache=v2,ssd,discard=async,autodefrag,subvol=@home $DISK_ARCH /mnt/arch/home &&
-	mount -o nodev,nosuid,noexec,noatime,compress-force=zstd,commit=120,space_cache=v2,ssd,discard=async,autodefrag,subvol=@log $DISK_ARCH /mnt/arch/var/log &&
-	mount -o nodev,nosuid,noexec,noatime,compress-force=zstd,commit=120,space_cache=v2,ssd,discard=async,autodefrag,subvol=@pkg $DISK_ARCH /mnt/arch/var/cache/pacman/pkg &&
-	mount -o noatime,compress-force=zstd,commit=120,space_cache=v2,ssd,discard=async,autodefrag,subvol=@.snapshots $DISK_ARCH /mnt/arch/.snapshots &&
-	mount -o noatime,compress-force=zstd,commit=120,space_cache=v2,ssd,discard=async,autodefrag,subvolid=5 $DISK_ARCH /mnt/arch/btrfs
+mount -o noatime,compress-force=zstd,commit=120,space_cache=v2,ssd,discard=async,autodefrag,subvol=@ $DISK_ARCH_ROOT /mnt/arch &&
+	mkdir -p /mnt/arch/{home,var/cache/pacman/pkg,var/log,.snapshots,btrfs} &&
+	mount -o noatime,compress-force=zstd,commit=120,space_cache=v2,ssd,discard=async,autodefrag,subvol=@home $DISK_ARCH_HOME /mnt/arch/home &&
+	mount -o nodev,nosuid,noexec,noatime,compress-force=zstd,commit=120,space_cache=v2,ssd,discard=async,autodefrag,subvol=@log $DISK_ARCH_ROOT /mnt/arch/var/log &&
+	mount -o nodev,nosuid,noexec,noatime,compress-force=zstd,commit=120,space_cache=v2,ssd,discard=async,autodefrag,subvol=@pkg $DISK_ARCH_ROOT /mnt/arch/var/cache/pacman/pkg &&
+	mount -o noatime,compress-force=zstd,commit=120,space_cache=v2,ssd,discard=async,autodefrag,subvol=@.snapshots $DISK_ARCH_ROOT /mnt/arch/.snapshots &&
+	mount -o noatime,compress-force=zstd,commit=120,space_cache=v2,ssd,discard=async,autodefrag,subvolid=5 $DISK_ARCH_ROOT /mnt/arch/btrfs
 
 # Disable Copy on Write for databases
 mkdir -p /mnt/arch/var/lib/{docker,machines,mysql,postgres}
 chattr +C /mnt/arch/var/lib/{docker,machines,mysql,postgres}
 
 # Mount NTFS DISKS
-mkdir -p /mnt/arch/{win10,documents,games,vault}
-mount -o noatime,compress-force=zstd,commit=120,space_cache=v2,ssd,discard=async,autodefrag $DISK_WIN10 /mnt/arch/win10 &&
-	mount -o noatime,compress-force=zstd,commit=120,space_cache=v2,ssd,discard=async,autodefrag $DISK_DOCUMENTS /mnt/arch/documents &&
-	mount -o noatime,compress-force=zstd,commit=120,space_cache=v2,ssd,discard=async,autodefrag $DISK_GAMES /mnt/arch/games &&
+mkdir -p /mnt/arch/{win,vault}
+mount -o noatime,compress-force=zstd,commit=120,space_cache=v2,ssd,discard=async,autodefrag $DISK_WIN /mnt/arch/win &&
 	mount -o noatime,compress-force=zstd,autodefrag $DISK_VAULT /mnt/arch/vault
 
 # Mount boot
@@ -217,6 +200,12 @@ arch-chroot /mnt/arch /bin/bash -c "chmod +w /etc/sudoers &&
     sed -i '/# %wheel ALL=(ALL:ALL) NOPASSWD: ALL/s/^#//' /etc/sudoers &&
     chmod 0440 /etc/sudoers"
 
+# Clone and copy dotfiles
+arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'git clone https://github.com/FromWau/dotfiles.git ~/dotfiles'" &&
+	cp -rp /mnt/arch/home/"$USER_NAME"/dotfiles/.local /mnt/arch/home/"$USER_NAME" &&
+	cp -rp /mnt/arch/home/"$USER_NAME"/dotfiles/.config /mnt/arch/home/"$USER_NAME" &&
+	rm -rf /mnt/arch/home/"$USER_NAME"/dotfiles
+
 # install yay and aur pkgs
 arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'git clone https://aur.archlinux.org/yay-git.git ~/yay-git &&
     cd ~/yay-git &&
@@ -231,7 +220,7 @@ sed -i 's/MODULES=()/MODULES=(btrfs nvidia nvidia_modeset nvidia_uvm nvidia_drm)
 	sed -i 's/BINARIES=()/BINARIES=("\/usr\/bin\/btrfs")/' /mnt/arch/etc/mkinitcpio.conf &&
 	sed -i 's/#COMPRESSION="lz4"/COMPRESSION="lz4"/' /mnt/arch/etc/mkinitcpio.conf &&
 	sed -i 's/#COMPRESSION_OPTIONS=()/COMPRESSION_OPTIONS=(-9)/' /mnt/arch/etc/mkinitcpio.conf &&
-	sed -i 's/^HOOKS.*/HOOKS=(base systemd btrfs autodetect modconf kms block keyboard sd-vconsole filesystems fsck)/' /mnt/arch/etc/mkinitcpio.conf &&
+	sed -i 's/^HOOKS.*/HOOKS=(base systemd btrfs autodetect modconf kms keyboard sd-vconsole block filesystems fsck)/' /mnt/arch/etc/mkinitcpio.conf &&
 	arch-chroot /mnt/arch /bin/bash -c "mkinitcpio -p linux"
 
 # Install and configure grub
@@ -259,12 +248,6 @@ arch-chroot /mnt/arch /bin/bash -c "git clone https://github.com/vinceliuice/gru
 	sed -i "s|.*GRUB_GFXMODE=.*|GRUB_GFXMODE=1920x1080,auto|" /mnt/arch/etc/default/grub &&
 	arch-chroot /mnt/arch /bin/bash -c "grub-mkconfig -o /boot/grub/grub.cfg"
 
-# Clone and copy dotfiles
-arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'git clone https://github.com/FromWau/dotfiles.git ~/dotfiles'" &&
-	cp -rp /mnt/arch/home/"$USER_NAME"/dotfiles/.local /mnt/arch/home/"$USER_NAME" &&
-	cp -rp /mnt/arch/home/"$USER_NAME"/dotfiles/.config/{btop,eww,fish,hypr,kitty,ncspot,nvim,ranger,rofi,starship.toml} /mnt/arch/home/"$USER_NAME"/.config &&
-	rm -rf /mnt/arch/home/"$USER_NAME"/dotfiles
-
 # create dash hook
 arch-chroot /mnt/arch /bin/bash -c "ln -sfT dash /usr/bin/sh" &&
 	echo '[Trigger]
@@ -273,7 +256,7 @@ Operation = Install
 Operation = Upgrade
 Target = bash
 [Action]
-Description = Re-pointing /bin/sh symlink to dash...
+Description = Re-pointing /usr/bin/sh symlink to dash...
 When = PostTransaction
 Exec = /usr/bin/ln -sfT dash /usr/bin/sh
 Depends = dash' >/mnt/arch/usr/share/libalpm/hooks/update-bash.hook
@@ -297,21 +280,16 @@ EOF
 # Create zram
 cat <<EOF >/mnt/arch/etc/systemd/zram-generator.conf
 [zram0]
-zram-size = ram / 4
+zram-size = ram
 compression-algorithm = zstd
 EOF
-
-# Set Bluetooth to use experimental backend
-sed -i "s/^#*Experimental =.*/Experimental = true/" /mnt/arch/etc/bluetooth/main.conf
-
-# Fix invisible hyprland cursor
-sed -i "s/^Exec=.*/Exec=env WLR_NO_HARDWARE_CURSORS=1 Hyprland/" /mnt/arch/usr/share/wayland-sessions/hyprland.desktop
 
 # Enable services
 arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'sudo systemctl enable NetworkManager &&
     sudo systemctl enable sshd.service &&
-    sudo systemctl enable ly.service &&
+    sudo systemctl enable sddm.service &&
     sudo systemctl enable bluetooth.service &&
+    sudo systemctl enable grub-btrfsd.service &&
     sudo systemctl enable upower.service'"
 
 # Gaming/Performance tweaks (https://wiki.archlinux.org/title/gaming)
@@ -347,7 +325,7 @@ w /sys/kernel/debug/sched/nr_migrate - - - - 8
 EOF
 	arch-chroot /mnt/arch /bin/bash -c "sysctl --system"
 
-	arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'yay -Syyyu --noconfirm --removemake --rebuild gamemode mangohud schedtoold'"
+	arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'yay -Syyyu --noconfirm --removemake --rebuild gamemode schedtoold'"
 
 	arch-chroot /mnt/arch /bin/bash -c "usermod -a -G gamemode $USER_NAME"
 fi
