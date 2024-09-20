@@ -110,6 +110,11 @@ mkfs.btrfs -L ArchRoot -f $DISK_ARCH_ROOT &&
 mkfs.btrfs -L ArchHome -f $DISK_ARCH_HOME &&
 	echo "$CHECK Created linux filesystems" ||
 	echo "$CROSS FAILED to create arch linux filesystems"
+ 
+# Setup Filesystem
+mkfs.vfat -n Boot $DISK_BOOT &&
+	echo "$CHECK Created boot filesystems" ||
+	echo "$CROSS FAILED to create arch boot filesystems"
 
 # Create Sub volumes
 mkdir -p /mnt/arch
