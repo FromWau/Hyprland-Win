@@ -217,7 +217,7 @@ arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'git clone https://
 	rm -rf /mnt/arch/home/"$USER_NAME"/dotfiles
 
 # Create important dirs
-mkdir -p /mnt/arch/home/"$USER_NAME"/.local/share/gnupg/
+arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'mkdir -p ~/.local/share/gnupg/'"
 
 # install yay and aur pkgs
 arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'git clone https://aur.archlinux.org/yay-git.git ~/yay-git &&
