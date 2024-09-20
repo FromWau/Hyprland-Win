@@ -22,7 +22,7 @@ DISK_VAULT='/dev/sda3'
 DISK_WIN='/dev/nvme0n1p3'
 
 PKG_PACMAN='amd-ucode base base-devel bash bat blueberry bluedevil bluez bluez-utils btop btrfs-progs cliphist curl dash efibootmgr eza fastfetch fd firefox fish fwupd fzf git git-delta grim grub-btrfs iwd jq kdeconnect kitty lazygit linux linux-firmware linux-headers man neovim networkmanager noto-fonts-emoji nvidia-dkms ntfs-3g sddm os-prober openssh pacman pavucontrol pipewire pipewire-alsa pipewire-audio pipewire-pulse playerctl polkit-kde-agent procs reflector ripgrep rsync slurp starship sudo thunderbird tldr ttf-firacode-nerd ttf-joypixels wget wireplumber wl-clipboard xdg-desktop-portal-hyprland zoxide zram-generator zstd'
-PKG_AUR='aylurs-gtk-shell-git cava dracula-gtk-theme dracula-icons-theme hyprland anyrun-git bun-bin gnome-bluetooth-3.0 mpc mpd mpv npm nwg-look sddm sddm-astronaut-theme steam schedtoold timeshift timeshift-autosnap python-pywal16 python-pywalfox swww systemd-swap udiskie-systemd-git ueberzugpp wlroots-nvidia xwaylandvideobridge yay'
+PKG_AUR='aylurs-gtk-shell-git cava dracula-gtk-theme dracula-icons-theme hyprland anyrun-git bun-bin gnome-bluetooth-3.0 mpc mpd mpv npm nwg-look sddm sddm-astronaut-theme steam schedtoold timeshift timeshift-autosnap python-pywal16 python-pywalfox swww systemd-swap udiskie-systemd-git ueberzugpp wlroots-nvidia xwaylandvideobridge'
 
 SETUP_GAMING='true'
 # =====================================================================
@@ -217,16 +217,18 @@ arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'git clone https://
 	rm -rf /mnt/arch/home/"$USER_NAME"/dotfiles
 
 # Create important dirs
-arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'mkdir -p ~/.local/share/gnupg/'"
+arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'mkdir -p ~/.local/share/gnupg/ &&
+	find ~/.local/share/gnupg -type f -exec chmod 600 {} &&
+	find ~/.local/share/gnupg -type d -exec chmod 700 {}'"
 
 # install yay and aur pkgs
 arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'git clone https://aur.archlinux.org/yay-git.git ~/yay-git &&
     cd ~/yay-git &&
     makepkg -si --noconfirm &&
-    yay -Syyyu --noconfirm --removemake --rebuild $PKG_AUR && 
-    rm -rf ~/yay-git &&
-    rm -rf ~/.rustup
-    rm -rf ~/.cargo'"
+    yay -Syyyu --noconfirm --removemake --rebuild $PKG_AUR'"
+
+# Clean up home
+rm -rf /mnt/arch/home/"$USER_NAME"/{yay-git,.rustup,.cargo,.npm}
 
 # Configure mkinicpio.conf
 sed -i 's/MODULES=()/MODULES=(btrfs nvidia nvidia_modeset nvidia_uvm nvidia_drm)/' /etc/mkinitcpio.conf &&
