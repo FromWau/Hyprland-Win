@@ -169,9 +169,6 @@ echo "$PKG_PACMAN" | xargs pacstrap /mnt/arch
 # generate fstab
 genfstab -U /mnt/arch >/mnt/arch/etc/fstab
 
-# Configure system
-timedatectl set-ntp true
-
 # copy pacman configs
 cp -p /etc/pacman.d/mirrorlist /mnt/arch/etc/pacman.d/mirrorlist
 cp -p /etc/pacman.conf /mnt/arch/etc
@@ -184,9 +181,12 @@ sed -i "/$LOCALE/s/^#//g" /mnt/arch/etc/locale.gen &&
 # Set vconsole
 echo "KEYMAP=$KEYLAYOUT" >/mnt/arch/etc/vconsole.conf
 
+# Configure system
+timedatectl set-ntp true
+
 # Set timezone
 ln -sf /mnt/arch/usr/share/zoneinfo/$TIMEZONE /mnt/arch/etc/localtime &&
-	arch-chroot /mnt/arch /bin/bash -c "hwclock -uw && timedatectl set-timezone $TIMEZONE"
+	arch-chroot /mnt/arch /bin/bash -c "hwclock -uw"
 
 # Set hostname
 echo "${HOST}" >/mnt/arch/etc/hostname
@@ -215,6 +215,9 @@ arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'git clone https://
 	cp -rp /mnt/arch/home/"$USER_NAME"/dotfiles/.local /mnt/arch/home/"$USER_NAME" &&
 	cp -rp /mnt/arch/home/"$USER_NAME"/dotfiles/.config /mnt/arch/home/"$USER_NAME" &&
 	rm -rf /mnt/arch/home/"$USER_NAME"/dotfiles
+
+# Create important dirs
+mkdir -p /mnt/arch/home/"$USER_NAME"/.local/share/gnupg/
 
 # install yay and aur pkgs
 arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'git clone https://aur.archlinux.org/yay-git.git ~/yay-git &&
