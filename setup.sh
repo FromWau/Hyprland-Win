@@ -3,8 +3,6 @@
 set -e
 
 # Settings
-LOG_FILE='hyprland-setup.log'
-
 KEYLAYOUT='en'
 ROOT_PASS='root'
 USER_NAME='fromml'
@@ -21,8 +19,30 @@ DISK_ARCH_HOME='/dev/nvme1n1p3'
 DISK_VAULT='/dev/sda3'
 DISK_WIN='/dev/nvme0n1p3'
 
-PKG_PACMAN='amd-ucode base base-devel bash bat blueberry bluedevil bluez bluez-utils btop btrfs-progs cliphist curl dash efibootmgr eza fastfetch fd firefox fish fwupd fzf git git-delta grim grub-btrfs iwd jq kdeconnect kitty lazygit linux linux-firmware linux-headers man neovim networkmanager noto-fonts-emoji nvidia-dkms ntfs-3g sddm os-prober openssh pacman pavucontrol pipewire pipewire-alsa pipewire-audio pipewire-pulse playerctl polkit-kde-agent procs reflector ripgrep rsync slurp starship sudo thunderbird tldr ttf-firacode-nerd ttf-joypixels wget wireplumber wl-clipboard xdg-desktop-portal-hyprland zoxide zram-generator zstd'
-PKG_AUR='aylurs-gtk-shell-git cava dracula-gtk-theme dracula-icons-theme hyprland anyrun-git bun-bin gnome-bluetooth-3.0 mpc mpd mpv npm nwg-look sddm sddm-astronaut-theme steam schedtoold timeshift timeshift-autosnap python-pywal16 python-pywalfox sass swww systemd-swap udiskie-systemd-git ueberzugpp wlroots-nvidia xwaylandvideobridge'
+# PKGs
+PKG_BASE='base base-devel efibootmgr grub-btrfs linux linux-firmware linux-headers openssh pacman git man sudo'
+PKG_NTFS='os-prober ntfs-3g'
+PKG_HARDWARE='amd-ucode nvidia-dkms fwupd zram-generator zstd systemd-swap'
+PKG_AUR_HARDWARE='wlroots-nvidia udiskie-systemd-git'
+PKG_BLUETOOTH='blueberry bluedevil bluez bluez-utils'
+PKG_NETWORK='networkmanager iwd'
+PKG_SNAPSHOTS='btrfs-progs timeshift'
+PKG_AUR_SNAPSHOTS='timeshift-autosnap'
+PKG_SDDM='sddm'
+PKG_HYPRLAND='xdg-desktop-portal-hyprland hyprland '
+PKG_TERMINAL='bat btop dash bash fish cliphist wl-clipboard curl wget eza fastfetch fd fzf git-delta grim jq lazygit playerctl polkit-kde-agent procs reflector ripgrep rsync slurp starship tldr zoxide mpc mpd mpv ueberzugpp '
+PKG_UI='firefox kdeconnect kitty pavucontrol thunderbird swww xwaylandvideobridge'
+PKG_AUR_UI='anyrun-git'
+PKG_FONTS='noto-fonts-emoji ttf-firacode-nerd ttf-joypixels'
+PKG_AUDIO='pipewire pipewire-alsa pipewire-audio pipewire-pulse wireplumber'
+PKG_AUR_AGS='aylurs-gtk-shell-git bun-bin gnome-bluetooth-3.0 sass'
+PKG_THEME='nwg-look'
+PKG_AUR_THEME='catppuccin-cursors-macchiato catppuccin-gtk-theme-macchiato dracula-icons-theme python-pywal16 python-pywalfox'
+PKG_NEOVIM='neovim npm luarocks'
+PKG_GAME='steam schedtoold'
+
+PKG_PACMAN="$PKG_BASE $PKG_NTFS $PKG_HARDWARE $PKG_BLUETOOTH $PKG_NETWORK $PKG_SNAPSHOTS $PKG_SDDM $PKG_HYPRLAND $PKG_TERMINAL $PKG_UI $PKG_FONTS $PKG_AUDIO $PKG_THEME $PKG_NEOVIM $PKG_GAME"
+PKG_AUR="$PKG_AUR_HARDWARE $PKG_AUR_SNAPSHOTS $PKG_AUR_UI $PKG_AUR_AGS $PKG_AUR_THEME"
 
 SETUP_GAMING='true'
 # =====================================================================
@@ -43,13 +63,7 @@ END_HEREDOC
 CHECK='✔'
 CROSS='✗'
 
-# echos and logs
-function log {
-	[[ ! -d /mnt/arch/log ]] && mkdir -p /mnt/arch/log
-	echo -e "$1" | tee -a /mnt/arch/log/$LOG_FILE
-}
-
-log "$LOGO
+echo -e "$LOGO
 
 ---------------------------- Set Variables ----------------------------
 CONFIGS:
@@ -110,7 +124,7 @@ mkfs.btrfs -L ArchRoot -f $DISK_ARCH_ROOT &&
 mkfs.btrfs -L ArchHome -f $DISK_ARCH_HOME &&
 	echo "$CHECK Created linux filesystems" ||
 	echo "$CROSS FAILED to create arch linux filesystems"
- 
+
 # Setup Filesystem
 mkfs.vfat -n Boot $DISK_BOOT &&
 	echo "$CHECK Created boot filesystems" ||
