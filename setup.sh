@@ -337,7 +337,9 @@ arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'sudo systemctl ena
     sudo systemctl enable sddm.service &&
     sudo systemctl enable bluetooth.service &&
     sudo systemctl enable grub-btrfsd.service &&
-    sudo systemctl enable upower.service'"
+    sudo systemctl enable upower.service &&
+    systemctl --user enable mpd-mpris.service &&
+    systemctl --user enable mpd.service'"
 
 # Gaming/Performance tweaks (https://wiki.archlinux.org/title/gaming)
 if [ "$SETUP_GAMING" = "true" ]; then
@@ -381,6 +383,11 @@ arch-chroot /mnt/arch /bin/bash -c "chmod +w /etc/sudoers &&
     chmod 0440 /etc/sudoers"
 
 echo "done"
-echo "before rebooting"
+
+echo "If booting takes for ever - 'timeout waiting for device dev-tpmrm0.device'"
 echo "run:"
-echo "cd ~ && umount -a && reboot"
+echo "systemctl mask dev-tpmrm0.device"
+
+echo "If the clock is wrong"
+echo "run:"
+echo "timedatectl set-timezone $TIMEZONE"
