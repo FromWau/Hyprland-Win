@@ -23,12 +23,12 @@ DISK_WIN='/dev/nvme0n1p3'
 PKG_BASE='base base-devel efibootmgr grub-btrfs linux linux-firmware linux-headers openssh pacman git man sudo'
 PKG_NTFS='os-prober ntfs-3g'
 PKG_HARDWARE='amd-ucode nvidia-dkms fwupd zram-generator zstd systemd-swap'
-PKG_AUR_HARDWARE='wlroots-nvidia udiskie-systemd-git'
+PKG_AUR_HARDWARE='wlroots-nvidia udiskie-systemd-git tpl-git'
 PKG_BLUETOOTH='blueberry bluedevil bluez bluez-utils'
 PKG_NETWORK='networkmanager iwd'
 PKG_SNAPSHOTS='btrfs-progs timeshift'
 PKG_AUR_SNAPSHOTS='timeshift-autosnap'
-PKG_SDDM='sddm'
+PKG_SDDM='sddm qt6-svg'
 PKG_HYPRLAND='xdg-desktop-portal-hyprland hyprland '
 PKG_TERMINAL='bat btop dash bash fish cliphist wl-clipboard curl wget eza fastfetch fd fzf git-delta grim jq lazygit playerctl polkit-kde-agent procs reflector ripgrep rsync slurp starship tldr zoxide mpc mpd mpv ueberzugpp '
 PKG_UI='firefox kdeconnect kitty pavucontrol thunderbird swww xwaylandvideobridge'
@@ -213,6 +213,22 @@ cat <<EOF >>/mnt/arch/etc/hosts
 127.0.1.1       $HOST.localdomain       $HOST
 EOF
 
+# sddm setup
+git clone https://github.com/keyitdev/sddm-astronaut-theme.git /mnt/arch/usr/share/sddm/themes/sddm-astronaut-theme &&
+	cp /mnt/arch/usr/share/sddm/themes/sddm-astronaut-theme/Fonts/* /mnt/arch/usr/share/fonts/ &&
+	mkdir -p /mnt/arch/etc/sddm.conf.d/ &&
+	cat <<EOF >>/mnt/arch/etc/sddm.conf.d/10-wayland.conf
+[General]
+GreeterEnvironment=QT_WAYLAND_SHELL_INTEGRATION=layer-shell
+Numlock=on
+
+[Theme]
+Current=sddm-astronaut-theme
+
+[Wayland]
+CompositerCommand=kwin_wayland --drm --no-lockscreen --no-global-shortcuts --locale1
+EOF
+
 # Set root passwd
 arch-chroot /mnt/arch /bin/bash -c "echo 'root:$ROOT_PASS' | chpasswd"
 
@@ -234,6 +250,7 @@ arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'git clone https://
 arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'mkdir -p ~/.local/share/gnupg/ &&
 	find ~/.local/share/gnupg -type f -exec chmod 600 {} &&
 	find ~/.local/share/gnupg -type d -exec chmod 700 {}'"
+arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'mkdir -p ~/.local/share/mpd/playlists/'"
 
 # install yay and aur pkgs
 arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'git clone https://aur.archlinux.org/yay-git.git ~/yay-git &&
