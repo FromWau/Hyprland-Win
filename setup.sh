@@ -216,10 +216,14 @@ EOF
 
 # sddm setup
 git clone https://github.com/keyitdev/sddm-astronaut-theme.git /mnt/arch/usr/share/sddm/themes/sddm-astronaut-theme &&
+	sed -i 's/PartialBlur="true"/PartialBlur="false"/' /mnt/arch/usr/share/sddm/themes/sddm-astronaut-theme/theme.conf &&
+	sed -i 's/FormPosition="center"/FormPosition="left"/' /mnt/arch/usr/share/sddm/themes/sddm-astronaut-theme/theme.conf &&
+
 	cp /mnt/arch/usr/share/sddm/themes/sddm-astronaut-theme/Fonts/* /mnt/arch/usr/share/fonts/ &&
 	mkdir -p /mnt/arch/etc/sddm.conf.d/ &&
 	cat <<EOF >>/mnt/arch/etc/sddm.conf.d/10-wayland.conf
 [General]
+DisplayServer=wayland
 GreeterEnvironment=QT_WAYLAND_SHELL_INTEGRATION=layer-shell
 Numlock=on
 
@@ -227,8 +231,10 @@ Numlock=on
 Current=sddm-astronaut-theme
 
 [Wayland]
-CompositerCommand=kwin_wayland --drm --no-lockscreen --no-global-shortcuts --locale1
+CompositorCommand=kwin_wayland --drm --no-lockscreen --no-global-shortcuts --locale1
 EOF
+
+
 
 # Set root passwd
 arch-chroot /mnt/arch /bin/bash -c "echo 'root:$ROOT_PASS' | chpasswd"
