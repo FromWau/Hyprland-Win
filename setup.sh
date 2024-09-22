@@ -29,20 +29,21 @@ PKG_NETWORK='networkmanager iwd'
 PKG_SNAPSHOTS='btrfs-progs timeshift'
 PKG_AUR_SNAPSHOTS='timeshift-autosnap'
 PKG_SDDM='sddm qt6-svg'
-PKG_HYPRLAND='xdg-desktop-portal-hyprland hyprland '
+PKG_HYPRLAND='xdg-desktop-portal-hyprland hyprland'
+PKG_AUR_HYPRLAND='hyprpicker'
 PKG_TERMINAL='bat btop dash bash fish cliphist wl-clipboard curl wget eza fastfetch fd fzf git-delta grim jq lazygit playerctl polkit-kde-agent procs reflector ripgrep rsync slurp starship tldr zoxide mpc mpd mpv ueberzugpp '
-PKG_UI='firefox kdeconnect kitty pavucontrol thunderbird swww xwaylandvideobridge'
+PKG_UI='firefox kdeconnect kitty pavucontrol thunderbird swww xwaylandvideobridge zbar dunst'
 PKG_AUR_UI='anyrun-git'
 PKG_FONTS='noto-fonts-emoji ttf-firacode-nerd ttf-joypixels'
 PKG_AUDIO='pipewire pipewire-alsa pipewire-audio pipewire-pulse wireplumber'
-PKG_AUR_AGS='aylurs-gtk-shell-git bun-bin gnome-bluetooth-3.0 sass'
+PKG_AUR_AGS='aylurs-gtk-shell bun-bin gnome-bluetooth-3.0 sass'
 PKG_THEME='nwg-look'
 PKG_AUR_THEME='catppuccin-cursors-macchiato catppuccin-gtk-theme-macchiato dracula-icons-theme python-pywal16 python-pywalfox'
 PKG_NEOVIM='neovim npm luarocks'
-PKG_GAME='steam schedtoold'
+PKG_GAME='steam schedtoold gamemode'
 
 PKG_PACMAN="$PKG_BASE $PKG_NTFS $PKG_HARDWARE $PKG_BLUETOOTH $PKG_NETWORK $PKG_SNAPSHOTS $PKG_SDDM $PKG_HYPRLAND $PKG_TERMINAL $PKG_UI $PKG_FONTS $PKG_AUDIO $PKG_THEME $PKG_NEOVIM $PKG_GAME"
-PKG_AUR="$PKG_AUR_HARDWARE $PKG_AUR_SNAPSHOTS $PKG_AUR_UI $PKG_AUR_AGS $PKG_AUR_THEME"
+PKG_AUR="$PKG_AUR_HARDWARE $PKG_AUR_SNAPSHOTS $PKG_AUR_UI $PKG_AUR_AGS $PKG_AUR_THEME $PKG_AUR_HYPRLAND"
 
 SETUP_GAMING='true'
 # =====================================================================
@@ -370,9 +371,6 @@ w /sys/kernel/debug/sched/migration_cost_ns - - - - 500000
 w /sys/kernel/debug/sched/nr_migrate - - - - 8
 EOF
 	arch-chroot /mnt/arch /bin/bash -c "sysctl --system"
-
-	arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'yay -Syyyu --noconfirm --removemake --rebuild gamemode schedtoold'"
-
 	arch-chroot /mnt/arch /bin/bash -c "usermod -a -G gamemode $USER_NAME"
 fi
 
