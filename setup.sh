@@ -41,6 +41,7 @@ PKG_THEME='nwg-look papirus-icon-theme'
 PKG_AUR_THEME='catppuccin-cursors-macchiato catppuccin-gtk-theme-macchiato dracula-icons-theme python-pywal16 python-pywalfox'
 PKG_NEOVIM='neovim npm luarocks'
 PKG_GAME='steam schedtoold gamemode'
+PKG_AUR_BEETS='beets mp3val flac ffmpeg imagemagick python-requests python-pylast'
 
 PKG_PACMAN="$PKG_BASE $PKG_NTFS $PKG_HARDWARE $PKG_BLUETOOTH $PKG_NETWORK $PKG_SNAPSHOTS $PKG_SDDM $PKG_HYPRLAND $PKG_TERMINAL $PKG_UI $PKG_FONTS $PKG_AUDIO $PKG_THEME $PKG_NEOVIM $PKG_GAME"
 PKG_AUR="$PKG_AUR_HARDWARE $PKG_AUR_SNAPSHOTS $PKG_AUR_UI $PKG_AUR_AGS $PKG_AUR_THEME $PKG_AUR_HYPRLAND"
@@ -269,7 +270,7 @@ arch-chroot /mnt/arch /bin/bash -c "runuser -l $USER_NAME -c 'git clone https://
 rm -rf /mnt/arch/home/"$USER_NAME"/{yay-git,.rustup,.cargo,.npm}
 
 # Configure mkinicpio.conf
-sed -i 's/MODULES=()/MODULES=(btrfs nvidia nvidia_modeset nvidia_uvm nvidia_drm)/' /etc/mkinitcpio.conf &&
+sed -i 's/MODULES=()/MODULES=(btrfs nvidia nvidia_modeset nvidia_uvm nvidia_drm)/' /mnt/arch/etc/mkinitcpio.conf &&
 	sed -i 's/BINARIES=()/BINARIES=("\/usr\/bin\/btrfs")/' /mnt/arch/etc/mkinitcpio.conf &&
 	sed -i 's/#COMPRESSION="lz4"/COMPRESSION="lz4"/' /mnt/arch/etc/mkinitcpio.conf &&
 	sed -i 's/#COMPRESSION_OPTIONS=()/COMPRESSION_OPTIONS=(-9)/' /mnt/arch/etc/mkinitcpio.conf &&
