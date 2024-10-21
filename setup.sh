@@ -224,7 +224,6 @@ git clone https://github.com/keyitdev/sddm-astronaut-theme.git /mnt/arch/usr/sha
 	mkdir -p /mnt/arch/etc/sddm.conf.d/ &&
 	cat <<EOF >>/mnt/arch/etc/sddm.conf.d/10-wayland.conf
 [General]
-DisplayServer=wayland
 GreeterEnvironment=QT_WAYLAND_SHELL_INTEGRATION=layer-shell
 Numlock=on
 
@@ -232,7 +231,7 @@ Numlock=on
 Current=sddm-astronaut-theme
 
 [Wayland]
-CompositorCommand=kwin_wayland --drm --no-lockscreen --no-global-shortcuts --locale1
+CompositorCommand=Hyprland
 EOF
 
 
